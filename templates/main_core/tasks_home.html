@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Daily Tasks - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Timer Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-900">Pomodoro Timer</h2>
+            <div class="mt-4 text-5xl font-bold text-red-600" id="timer">25:00</div>
+            <div class="mt-4 flex justify-center space-x-4">
+                <button id="startTimer" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Start
+                </button>
+                <button id="resetTimer" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-600 bg-red-100 hover:bg-red-200">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Reset
+                </button>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                Current Streak: <span class="font-medium text-red-600">{{ user.learning_streak }} days</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Goals Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Today's Goals</h2>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <input type="checkbox" id="goal1" class="h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500">
+                    <label for="goal1" class="ml-3 text-gray-900">Learn 10 new {{ user.current_hsk_level }} words</label>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-500 mr-2">+50 points</span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <input type="checkbox" id="goal2" class="h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500">
+                    <label for="goal2" class="ml-3 text-gray-900">Complete 1 grammar lesson</label>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-500 mr-2">+30 points</span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <input type="checkbox" id="goal3" class="h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500">
+                    <label for="goal3" class="ml-3 text-gray-900">Practice pronunciation</label>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-500 mr-2">+20 points</span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 text-right">
+            <span class="text-sm text-gray-500">Total Points Available: <span class="font-medium text-red-600">100</span></span>
+        </div>
+    </div>
+
+    <!-- Learning Resources Grid -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Vocabulary Card -->
+        <div class="bg-white overflow-hidden shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Vocabulary Practice</h3>
+                <p class="text-gray-500 mb-4">Learn and review HSK{{ user.current_hsk_level }} vocabulary words.</p>
+                <a href="{% url 'mandarin_vocab:vocab_home' %}" class="inline-flex items-center text-red-600 hover:text-red-700">
+                    Start Learning
+                    <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Grammar Card -->
+        <div class="bg-white overflow-hidden shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Grammar Lessons</h3>
+                <p class="text-gray-500 mb-4">Master essential Chinese grammar patterns.</p>
+                <a href="{% url 'main_core:grammar_home' %}" class="inline-flex items-center text-red-600 hover:text-red-700">
+                    Start Learning
+                    <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Reading Card -->
+        <div class="bg-white overflow-hidden shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Reading Practice</h3>
+                <p class="text-gray-500 mb-4">Practice with structured Chinese lessons.</p>
+                <a href="{% url 'main_core:lessons_home' %}" class="inline-flex items-center text-red-600 hover:text-red-700">
+                    Start Reading
+                    <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let timerInterval;
+let timeLeft = 25 * 60; // 25 minutes in seconds
+const timerDisplay = document.getElementById('timer');
+const startButton = document.getElementById('startTimer');
+const resetButton = document.getElementById('resetTimer');
+let isRunning = false;
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function toggleTimer() {
+    if (isRunning) {
+        clearInterval(timerInterval);
+        startButton.innerHTML = `
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Start
+        `;
+    } else {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                alert('Time is up! Take a break.');
+                resetTimer();
+            }
+        }, 1000);
+        startButton.innerHTML = `
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Pause
+        `;
+    }
+    isRunning = !isRunning;
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 25 * 60;
+    updateTimerDisplay();
+    isRunning = false;
+    startButton.innerHTML = `
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Start
+    `;
+}
+
+startButton.addEventListener('click', toggleTimer);
+resetButton.addEventListener('click', resetTimer);
+
+// Handle goal checkboxes
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const statusBadge = this.closest('.flex').querySelector('.rounded-full');
+        if (this.checked) {
+            statusBadge.className = 'px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800';
+            statusBadge.textContent = 'Completed';
+        } else {
+            statusBadge.className = 'px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800';
+            statusBadge.textContent = 'Pending';
+        }
+    });
+});
+</script>
+{% endblock %} 

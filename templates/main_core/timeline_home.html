@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load timeline_tags %}
+{% load i18n %}
+
+{% block title %}Timeline - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Messages Section -->
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Create Post Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <textarea name="content" class="w-full p-2 border rounded mb-4" rows="3" placeholder="What's on your mind?" required></textarea>
+            <div class="flex justify-between items-center">
+                <div>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="visibility" value="public" class="form-radio" checked>
+                        <span class="ml-2">Public</span>
+                    </label>
+                    <label class="inline-flex items-center ml-4">
+                        <input type="radio" name="visibility" value="friends" class="form-radio">
+                        <span class="ml-2">Friends Only</span>
+                    </label>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Post
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Posts -->
+    {% for post in posts %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center">
+                <img src="{% if post.user.profile_picture %}{{ post.user.profile_picture.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" 
+                     alt="{{ post.user.username }}'s profile" 
+                     class="w-10 h-10 rounded-full object-cover">
+                <div class="ml-3">
+                    <p class="font-semibold">{{ post.user.username }}</p>
+                    <p class="text-gray-500 text-sm">{{ post.created_at|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+            {% if post.user != request.user %}
+                {% if not post.user in user_connections %}
+                    <button onclick="sendFriendRequest({{ post.user.id }}, this)" 
+                            class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
+                            data-error-exists="{% trans 'request_exists' %}"
+                            data-error-generic="{% trans 'error_occurred' %}">
+                        {% trans 'add_friend' %}
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+        <p class="mb-4">{{ post.content }}</p>
+        <div class="flex items-center space-x-4">
+            <button class="text-gray-500 hover:text-blue-500">
+                <i class="fas fa-thumbs-up"></i> Like
+            </button>
+            <button class="text-gray-500 hover:text-blue-500">
+                <i class="fas fa-comment"></i> Comment
+            </button>
+            {% if post.user == request.user %}
+                <button class="text-gray-500 hover:text-red-500">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <p class="text-gray-600">No posts to display.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Mention Suggestions Dropdown -->
+<div id="mentionSuggestions" class="hidden fixed bg-white rounded-lg shadow-lg max-h-48 overflow-y-auto z-50">
+    <div class="p-2 space-y-1">
+        {% for user in all_users %}
+        <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-100" onclick="insertMention('{{ user.username }}')">
+            {{ user.username }}
+        </button>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Mention suggestions functionality
+    function setupMentionSuggestions(inputElement) {
+        const suggestionsElement = document.getElementById('mentionSuggestions');
+        let currentMentionStart = -1;
+
+        inputElement.addEventListener('input', function(e) {
+            const cursorPosition = this.selectionStart;
+            const textBeforeCursor = this.value.substring(0, cursorPosition);
+            const lastAtSymbol = textBeforeCursor.lastIndexOf('@');
+
+            if (lastAtSymbol !== -1 && lastAtSymbol === textBeforeCursor.length - 1) {
+                currentMentionStart = lastAtSymbol;
+                showSuggestions(this);
+            } else if (currentMentionStart !== -1) {
+                const searchTerm = this.value.substring(currentMentionStart + 1, cursorPosition).toLowerCase();
+                filterSuggestions(searchTerm);
+            }
+        });
+
+        inputElement.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideSuggestions();
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!suggestionsElement.contains(e.target) && e.target !== inputElement) {
+                hideSuggestions();
+            }
+        });
+    }
+
+    function showSuggestions(inputElement) {
+        const suggestionsElement = document.getElementById('mentionSuggestions');
+        const rect = inputElement.getBoundingClientRect();
+        
+        suggestionsElement.style.top = `${rect.bottom + window.scrollY}px`;
+        suggestionsElement.style.left = `${rect.left}px`;
+        suggestionsElement.style.width = `${rect.width}px`;
+        suggestionsElement.classList.remove('hidden');
+    }
+
+    function hideSuggestions() {
+        document.getElementById('mentionSuggestions').classList.add('hidden');
+    }
+
+    function filterSuggestions(searchTerm) {
+        const buttons = document.querySelectorAll('#mentionSuggestions button');
+        let hasVisible = false;
+
+        buttons.forEach(button => {
+            const username = button.textContent.trim().toLowerCase();
+            if (username.includes(searchTerm)) {
+                button.classList.remove('hidden');
+                hasVisible = true;
+            } else {
+                button.classList.add('hidden');
+            }
+        });
+
+        if (!hasVisible) {
+            hideSuggestions();
+        }
+    }
+
+    function insertMention(username) {
+        const activeElement = document.activeElement;
+        if (activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'INPUT') {
+            const cursorPosition = activeElement.selectionStart;
+            const textBeforeCursor = activeElement.value.substring(0, cursorPosition);
+            const lastAtSymbol = textBeforeCursor.lastIndexOf('@');
+            
+            if (lastAtSymbol !== -1) {
+                const textBeforeMention = activeElement.value.substring(0, lastAtSymbol);
+                const textAfterCursor = activeElement.value.substring(cursorPosition);
+                activeElement.value = textBeforeMention + '@' + username + ' ' + textAfterCursor;
+                
+                // Set cursor position after the inserted mention
+                const newPosition = lastAtSymbol + username.length + 2;
+                activeElement.setSelectionRange(newPosition, newPosition);
+            }
+        }
+        hideSuggestions();
+    }
+
+    // Initialize mention suggestions for all relevant inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        setupMentionSuggestions(document.querySelector('textarea[name="content"]'));
+        document.querySelectorAll('input[name="content"]').forEach(input => {
+            setupMentionSuggestions(input);
+        });
+    });
+
+    async function sendFriendRequest(userId, button) {
+        try {
+            const response = await fetch(`/send-friend-request/${userId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                button.textContent = '{% trans "request_sent" %}';
+                button.disabled = true;
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-gray-400', 'cursor-not-allowed');
+            } else {
+                showError(button, data.message || button.dataset.errorGeneric);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError(button, button.dataset.errorGeneric);
+        }
+    }
+
+    function showError(button, message) {
+        // Remove any existing error messages
+        const existingError = button.parentNode.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Create error message element
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message text-red-600 text-sm mt-1 absolute';
+        errorDiv.textContent = message;
+        errorDiv.style.zIndex = '10';
+        
+        // Position the error message below the button
+        const buttonRect = button.getBoundingClientRect();
+        errorDiv.style.top = `${buttonRect.bottom + window.scrollY + 4}px`;
+        errorDiv.style.left = `${buttonRect.left + window.scrollX}px`;
+        
+        // Add error message to the document
+        document.body.appendChild(errorDiv);
+        
+        // Remove error message after 3 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %} 

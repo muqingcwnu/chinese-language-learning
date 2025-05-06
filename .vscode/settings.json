@@ -1,0 +1,9 @@
+{
+    "python.analysis.extraPaths": [
+        "."
+    ],
+    "python.autoComplete.extraPaths": [
+        "."
+    ],
+    "python.defaultInterpreterPath": "C:\\Users\\parve\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
+}

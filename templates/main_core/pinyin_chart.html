@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandarin Chinese Pinyin Chart with Tones</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: #3498db;
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+        .instruction-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+        .instruction-item {
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+        }
+        .instruction-number {
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .instruction-text {
+            color: #2c3e50;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        .tables {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tables th, .tables td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .tables th {
+            background: #3498db;
+            color: white;
+        }
+        .tables td {
+            cursor: pointer;
+        }
+        .tables td:empty {
+            background: #f0f0f0;
+            cursor: default;
+        }
+        .tables td:hover:not(:empty) {
+            background: #e1f5fe;
+        }
+        .initials {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        .initials-td {
+            background: #ecf0f1;
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        .modal-body {
+            padding-top: 20px;
+        }
+        .pinyin-tone {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .tone-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .tone-btn:hover {
+            background: #2980b9;
+        }
+        .tone-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .pinyin-explain p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #34495e;
+        }
+        .pinyin-explain span {
+            font-weight: bold;
+        }
+        .btn-close {
+            display: block;
+            margin: 20px auto 0;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-close:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Mandarin Chinese Pinyin Chart</h1>
+        
+        <div class="instruction-box">
+            <div class="instruction-item">
+                <div class="instruction-number">1</div>
+                <div class="instruction-text">Click any syllable in the chart</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">2</div>
+                <div class="instruction-text">Select the tone (1-4)</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">3</div>
+                <div class="instruction-text">Listen and practice pronunciation</div>
+            </div>
+        </div>
+
+        <div class="table-responsive" id="pinyin">
+            <table class="tables">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td colspan="37">FINALS</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="finals">
+                        <td class="initials" rowspan="24"><span>INITIALS</span></td>
+                        <td></td>
+                        <td colspan="5">a</td>
+                        <td colspan="3">o</td>
+                        <td colspan="5">e</td>
+                        <td colspan="10">i</td>
+                        <td colspan="9">u</td>
+                        <td colspan="4">ü</td>
+                    </tr>
+                    <tr class="initials-tr">
+                        <td class="initials-td"></td>
+                        <td>a</td>
+                        <td>ai</td>
+                        <td>ao</td>
+                        <td>an</td>
+                        <td>ang</td>
+                        <td>o</td>
+                        <td>ong</td>
+                        <td>ou</td>
+                        <td>e</td>
+                        <td>ei</td>
+                        <td>en</td>
+                        <td>eng</td>
+                        <td>er</td>
+                        <td>i</td>
+                        <td>ia</td>
+                        <td>iao</td>
+                        <td>ie</td>
+                        <td>iu</td>
+                        <td>ian</td>
+                        <td>iang</td>
+                        <td>in</td>
+                        <td>ing</td>
+                        <td>iong</td>
+                        <td>u</td>
+                        <td>ua</td>
+                        <td>uo</td>
+                        <td>ui</td>
+                        <td>uai</td>
+                        <td>uan</td>
+                        <td>un</td>
+                        <td>uang</td>
+                        <td>ueng</td>
+                        <td>ü</td>
+                        <td>üe</td>
+                        <td>üan</td>
+                        <td>ün</td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td"></td>
+                        <td>a</td>
+                        <td>ai</td>
+                        <td>ao</td>
+                        <td>an</td>
+                        <td>ang</td>
+                        <td>o</td>
+                        <td></td>
+                        <td>ou</td>
+                        <td>e</td>
+                        <td>ei</td>
+                        <td>en</td>
+                        <td>eng</td>
+                        <td>er</td>
+                        <td>yi</td>
+                        <td>ya</td>
+                        <td>yao</td>
+                        <td>ye</td>
+                        <td>you</td>
+                        <td>yan</td>
+                        <td>yang</td>
+                        <td>yin</td>
+                        <td>ying</td>
+                        <td>yong</td>
+                        <td>wu</td>
+                        <td>wa</td>
+                        <td>wo</td>
+                        <td>wei</td>
+                        <td>wai</td>
+                        <td>wan</td>
+                        <td>wen</td>
+                        <td>wang</td>
+                        <td>weng</td>
+                        <td>yu</td>
+                        <td>yue</td>
+                        <td>yuan</td>
+                        <td>yun</td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">b</td>
+                        <td>ba</td>
+                        <td>bai</td>
+                        <td>bao</td>
+                        <td>ban</td>
+                        <td>bang</td>
+                        <td>bo</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>bei</td>
+                        <td>ben</td>
+                        <td>beng</td>
+                        <td></td>
+                        <td>bi</td>
+                        <td></td>
+                        <td>biao</td>
+                        <td>bie</td>
+                        <td></td>
+                        <td>bian</td>
+                        <td></td>
+                        <td>bin</td>
+                        <td>bing</td>
+                        <td></td>
+                        <td>bu</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">p</td>
+                        <td>pa</td>
+                        <td>pai</td>
+                        <td>pao</td>
+                        <td>pan</td>
+                        <td>pang</td>
+                        <td>po</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>pei</td>
+                        <td>pen</td>
+                        <td>peng</td>
+                        <td></td>
+                        <td>pi</td>
+                        <td></td>
+                        <td>piao</td>
+                        <td>pie</td>
+                        <td></td>
+                        <td>pian</td>
+                        <td></td>
+                        <td>pin</td>
+                        <td>ping</td>
+                        <td></td>
+                        <td>pu</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">m</td>
+                        <td>ma</td>
+                        <td>mai</td>
+                        <td>mao</td>
+                        <td>man</td>
+                        <td>mang</td>
+                        <td>mo</td>
+                        <td></td>
+                        <td>mou</td>
+                        <td>me</td>
+                        <td>mei</td>
+                        <td>men</td>
+                        <td>meng</td>
+                        <td></td>
+                        <td>mi</td>
+                        <td></td>
+                        <td>miao</td>
+                        <td>mie</td>
+                        <td></td>
+                        <td>mian</td>
+                        <td></td>
+                        <td>min</td>
+                        <td>ming</td>
+                        <td></td>
+                        <td>mu</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">f</td>
+                        <td>fa</td>
+                        <td></td>
+                        <td></td>
+                        <td>fan</td>
+                        <td>fang</td>
+                        <td>fo</td>
+                        <td></td>
+                        <td>fou</td>
+                        <td></td>
+                        <td>fei</td>
+                        <td>fen</td>
+                        <td>feng</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>fu</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">d</td>
+                        <td>da</td>
+                        <td>dai</td>
+                        <td>dao</td>
+                        <td>dan</td>
+                        <td>dang</td>
+                        <td></td>
+                        <td>dong</td>
+                        <td>dou</td>
+                        <td>de</td>
+                        <td>dei</td>
+                        <td>den</td>
+                        <td>deng</td>
+                        <td></td>
+                        <td>di</td>
+                        <td>dia</td>
+                        <td>diao</td>
+                        <td>die</td>
+                        <td>diu</td>
+                        <td>dian</td>
+                        <td></td>
+                        <td></td>
+                        <td>ding</td>
+                        <td></td>
+                        <td>du</td>
+                        <td></td>
+                        <td>duo</td>
+                        <td>dui</td>
+                        <td></td>
+                        <td>duan</td>
+                        <td>dun</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">t</td>
+                        <td>ta</td>
+                        <td>tai</td>
+                        <td>tao</td>
+                        <td>tan</td>
+                        <td>tang</td>
+                        <td></td>
+                        <td>tong</td>
+                        <td>tou</td>
+                        <td>te</td>
+                        <td>tei</td>
+                        <td></td>
+                        <td>teng</td>
+                        <td></td>
+                        <td>ti</td>
+                        <td></td>
+                        <td>tiao</td>
+                        <td>tie</td>
+                        <td></td>
+                        <td>tian</td>
+                        <td></td>
+                        <td></td>
+                        <td>ting</td>
+                        <td></td>
+                        <td>tu</td>
+                        <td></td>
+                        <td>tuo</td>
+                        <td>tui</td>
+                        <td></td>
+                        <td>tuan</td>
+                        <td>tun</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">n</td>
+                        <td>na</td>
+                        <td>nai</td>
+                        <td>nao</td>
+                        <td>nan</td>
+                        <td>nang</td>
+                        <td></td>
+                        <td>nong</td>
+                        <td></td>
+                        <td>ne</td>
+                        <td>nei</td>
+                        <td>nen</td>
+                        <td>neng</td>
+                        <td></td>
+                        <td>ni</td>
+                        <td></td>
+                        <td>niao</td>
+                        <td>nie</td>
+                        <td>niu</td>
+                        <td>nian</td>
+                        <td>niang</td>
+                        <td>nin</td>
+                        <td>ning</td>
+                        <td></td>
+                        <td>nu</td>
+                        <td></td>
+                        <td>nuo</td>
+                        <td></td>
+                        <td></td>
+                        <td>nuan</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>nü</td>
+                        <td>nüe</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">l</td>
+                        <td>la</td>
+                        <td>lai</td>
+                        <td>lao</td>
+                        <td>lan</td>
+                        <td>lang</td>
+                        <td>lo</td>
+                        <td>long</td>
+                        <td>lou</td>
+                        <td>le</td>
+                        <td>lei</td>
+                        <td></td>
+                        <td>leng</td>
+                        <td></td>
+                        <td>li</td>
+                        <td>lia</td>
+                        <td>liao</td>
+                        <td>lie</td>
+                        <td>liu</td>
+                        <td>lian</td>
+                        <td>liang</td>
+                        <td>lin</td>
+                        <td>ling</td>
+                        <td></td>
+                        <td>lu</td>
+                        <td></td>
+                        <td>luo</td>
+                        <td></td>
+                        <td></td>
+                        <td>luan</td>
+                        <td>lun</td>
+                        <td></td>
+                        <td></td>
+                        <td>lü</td>
+                        <td>lüe</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">z</td>
+                        <td>za</td>
+                        <td>zai</td>
+                        <td>zao</td>
+                        <td>zan</td>
+                        <td>zang</td>
+                        <td></td>
+                        <td>zong</td>
+                        <td>zou</td>
+                        <td>ze</td>
+                        <td>zei</td>
+                        <td>zen</td>
+                        <td>zeng</td>
+                        <td></td>
+                        <td>zi</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>zu</td>
+                        <td></td>
+                        <td>zuo</td>
+                        <td>zui</td>
+                        <td></td>
+                        <td>zuan</td>
+                        <td>zun</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">c</td>
+                        <td>ca</td>
+                        <td>cai</td>
+                        <td>cao</td>
+                        <td>can</td>
+                        <td>cang</td>
+                        <td></td>
+                        <td>cong</td>
+                        <td>cou</td>
+                        <td>ce</td>
+                        <td></td>
+                        <td>cen</td>
+                        <td>ceng</td>
+                        <td></td>
+                        <td>ci</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>cu</td>
+                        <td></td>
+                        <td>cuo</td>
+                        <td>cui</td>
+                        <td></td>
+                        <td>cuan</td>
+                        <td>cun</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">s</td>
+                        <td>sa</td>
+                        <td>sai</td>
+                        <td>sao</td>
+                        <td>san</td>
+                        <td>sang</td>
+                        <td></td>
+                        <td>song</td>
+                        <td>sou</td>
+                        <td>se</td>
+                        <td></td>
+                        <td>sen</td>
+                        <td>seng</td>
+                        <td></td>
+                        <td>si</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>su</td>
+                        <td></td>
+                        <td>suo</td>
+                        <td>sui</td>
+                        <td></td>
+                        <td>suan</td>
+                        <td>sun</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">zh</td>
+                        <td>zha</td>
+                        <td>zhai</td>
+                        <td>zhao</td>
+                        <td>zhan</td>
+                        <td>zhang</td>
+                        <td></td>
+                        <td>zhong</td>
+                        <td>zhou</td>
+                        <td>zhe</td>
+                        <td>zhei</td>
+                        <td>zhen</td>
+                        <td>zheng</td>
+                        <td></td>
+                        <td>zhi</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>zhu</td>
+                        <td>zhua</td>
+                        <td>zhuo</td>
+                        <td>zhui</td>
+                        <td>zhuai</td>
+                        <td>zhuan</td>
+                        <td>zhun</td>
+                        <td>zhuang</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">ch</td>
+                        <td>cha</td>
+                        <td>chai</td>
+                        <td>chao</td>
+                        <td>chan</td>
+                        <td>chang</td>
+                        <td></td>
+                        <td>chong</td>
+                        <td>chou</td>
+                        <td>che</td>
+                        <td></td>
+                        <td>chen</td>
+                        <td>cheng</td>
+                        <td></td>
+                        <td>chi</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>chu</td>
+                        <td></td>
+                        <td>chuo</td>
+                        <td>chui</td>
+                        <td>chuai</td>
+                        <td>chuan</td>
+                        <td>chun</td>
+                        <td>chuang</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">sh</td>
+                        <td>sha</td>
+                        <td>shai</td>
+                        <td>shao</td>
+                        <td>shan</td>
+                        <td>shang</td>
+                        <td></td>
+                        <td></td>
+                        <td>shou</td>
+                        <td>she</td>
+                        <td>shei</td>
+                        <td>shen</td>
+                        <td>sheng</td>
+                        <td></td>
+                        <td>shi</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>shu</td>
+                        <td>shua</td>
+                        <td>shuo</td>
+                        <td>shui</td>
+                        <td>shuai</td>
+                        <td>shuan</td>
+                        <td>shun</td>
+                        <td>shuang</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">r</td>
+                        <td></td>
+                        <td></td>
+                        <td>rao</td>
+                        <td>ran</td>
+                        <td>rang</td>
+                        <td></td>
+                        <td>rong</td>
+                        <td>rou</td>
+                        <td>re</td>
+                        <td></td>
+                        <td>ren</td>
+                        <td>reng</td>
+                        <td></td>
+                        <td>ri</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>ru</td>
+                        <td>rua</td>
+                        <td>ruo</td>
+                        <td>rui</td>
+                        <td></td>
+                        <td>ruan</td>
+                        <td>run</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">g</td>
+                        <td>ga</td>
+                        <td>gai</td>
+                        <td>gao</td>
+                        <td>gan</td>
+                        <td>gang</td>
+                        <td></td>
+                        <td>gong</td>
+                        <td>gou</td>
+                        <td>ge</td>
+                        <td>gei</td>
+                        <td>gen</td>
+                        <td>geng</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>gu</td>
+                        <td>gua</td>
+                        <td>guo</td>
+                        <td>gui</td>
+                        <td>guai</td>
+                        <td>guan</td>
+                        <td>gun</td>
+                        <td>guang</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">k</td>
+                        <td>ka</td>
+                        <td>kai</td>
+                        <td>kao</td>
+                        <td>kan</td>
+                        <td>kang</td>
+                        <td></td>
+                        <td>kong</td>
+                        <td>kou</td>
+                        <td>ke</td>
+                        <td>kei</td>
+                        <td>ken</td>
+                        <td>keng</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>ku</td>
+                        <td>kua</td>
+                        <td>kuo</td>
+                        <td>kui</td>
+                        <td>kuai</td>
+                        <td>kuan</td>
+                        <td>kun</td>
+                        <td>kuang</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">h</td>
+                        <td>ha</td>
+                        <td>hai</td>
+                        <td>hao</td>
+                        <td>han</td>
+                        <td>hang</td>
+                        <td></td>
+                        <td>hong</td>
+                        <td>hou</td>
+                        <td>he</td>
+                        <td>hei</td>
+                        <td>hen</td>
+                        <td>heng</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>hu</td>
+                        <td>hua</td>
+                        <td>huo</td>
+                        <td>hui</td>
+                        <td>huai</td>
+                        <td>huan</td>
+                        <td>hun</td>
+                        <td>huang</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">j</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>ji</td>
+                        <td>jia</td>
+                        <td>jiao</td>
+                        <td>jie</td>
+                        <td>jiu</td>
+                        <td>jian</td>
+                        <td>jiang</td>
+                        <td>jin</td>
+                        <td>jing</td>
+                        <td>jiong</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>ju</td>
+                        <td>jue</td>
+                        <td>juan</td>
+                        <td>jun</td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">q</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>qi</td>
+                        <td>qia</td>
+                        <td>qiao</td>
+                        <td>qie</td>
+                        <td>qiu</td>
+                        <td>qian</td>
+                        <td>qiang</td>
+                        <td>qin</td>
+                        <td>qing</td>
+                        <td>qiong</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>qu</td>
+                        <td>que</td>
+                        <td>quan</td>
+                        <td>qun</td>
+                    </tr>
+                    <tr>
+                        <td class="initials-td">x</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>xi</td>
+                        <td>xia</td>
+                        <td>xiao</td>
+                        <td>xie</td>
+                        <td>xiu</td>
+                        <td>xian</td>
+                        <td>xiang</td>
+                        <td>xin</td>
+                        <td>xing</td>
+                        <td>xiong</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>xu</td>
+                        <td>xue</td>
+                        <td>xuan</td>
+                        <td>xun</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="soundModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">How to pronounce - <span id="finals"></span></h4>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="pinyin-tone" id="pinyin-tone"></div>
+                <div class="pinyin-explain" id="pinyin-explain"></div>
+                <button class="btn-close" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const explain = {
+            'a': '<p><span>a</span> - <b>a</b> is pronounced like <b>a</b> as in "father".</p>',
+            'o': '<p><span>o</span> - <b>o</b> is pronounced somewhat like <b>o</b> as in "hot", but with the mouth not as wide open.</p>',
+            'e': '<p><span>e</span> - <b>e</b> is pronounced like <b>ir</b> as in "stir"; naturally open up your mouth and keep the tongue\'s position unchanged.</p><p>When it is used after <b>i</b> or <b>y</b>, it is pronounced like <b>e</b> as in "yet".</p>',
+            'i': '<p><span>i</span> - After <b>b</b>, <b>d</b>, <b>j</b>, <b>l</b>, <b>m</b>, <b>n</b>, <b>p</b>, <b>q</b>, <b>t</b> and <b>x</b>, the letter <b>i</b> is pronounced like <b>ee</b> as in "bee";</p><p>after <b>c</b>, <b>ch</b>, <b>r</b>, <b>s</b>, <b>sh</b>, <b>z</b> and <b>zh</b>, the position of the tongue remains unchanged, and a voiced sound is made.</p><p>For example, <b>si</b> is pronounced like <b>s</b> as in "so", immediately followed by <b>z</b> as in "zoo".</p>',
+            'u': '<p><span>u</span> - <b>u</b> is pronounced like <b>oo</b> as in "foot"; except after <b>j</b>, <b>q</b>, <b>x</b> and <b>y</b>, where it is pronounced as <b>ü</b>.</p>',
+            'ü': '<p><span>ü</span> - <b>ü</b> is pronounced like <b>y</b> in "yes", followed by the pronunciation of <b>oo</b> as in "food".</p>'
+        };
+
+        const finalsMap = {
+            'a': 'a', 'ai': 'a', 'ao': 'a', 'an': 'a', 'ang': 'a',
+            'o': 'o', 'ong': 'o', 'ou': 'o',
+            'e': 'e', 'ei': 'e', 'en': 'e', 'eng': 'e', 'er': 'e',
+            'i': 'i', 'ia': 'i', 'iao': 'i', 'ie': 'i', 'iu': 'i', 'ian': 'i', 'iang': 'i', 'in': 'i', 'ing': 'i', 'iong': 'i',
+            'u': 'u', 'ua': 'u', 'uo': 'u', 'ui': 'u', 'uai': 'u', 'uan': 'u', 'un': 'u', 'uang': 'u', 'ueng': 'u',
+            'ü': 'ü', 'üe': 'ü', 'üan': 'ü', 'ün': 'ü',
+            'yi': 'i', 'ya': 'i', 'yao': 'i', 'ye': 'i', 'you': 'i', 'yan': 'i', 'yang': 'i', 'yin': 'i', 'ying': 'i', 'yong': 'i',
+            'wu': 'u', 'wa': 'u', 'wo': 'u', 'wei': 'u', 'wai': 'u', 'wan': 'u', 'wen': 'u', 'wang': 'u', 'weng': 'u',
+            'yu': 'ü', 'yue': 'ü', 'yuan': 'ü', 'yun': 'ü'
+        };
+
+        const soundCache = {};
+
+        function openModal(syllable) {
+            const modal = document.getElementById('soundModal');
+            const finalsSpan = document.getElementById('finals');
+            const pinyinTone = document.getElementById('pinyin-tone');
+            const pinyinExplain = document.getElementById('pinyin-explain');
+
+            finalsSpan.textContent = syllable;
+            pinyinTone.innerHTML = '';
+            pinyinExplain.innerHTML = '';
+
+            const baseFinal = finalsMap[syllable] || syllable;
+            if (explain[baseFinal]) {
+                pinyinExplain.innerHTML = explain[baseFinal];
+            }
+
+            const tones = ['1st tone', '2nd tone', '3rd tone', '4th tone'];
+            tones.forEach((tone, index) => {
+                const toneNumber = index + 1;
+                const btn = document.createElement('button');
+                btn.className = 'tone-btn';
+                btn.textContent = tone;
+                btn.onclick = () => playSound(syllable, toneNumber);
+                pinyinTone.appendChild(btn);
+            });
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('soundModal');
+            modal.style.display = 'none';
+            Object.values(soundCache).forEach(audio => audio.pause());
+        }
+
+        function playSound(syllable, tone) {
+            const key = `${syllable}${tone}`;
+            let audio = soundCache[key];
+            const normalizedSyllable = syllable.replace('ü', 'v');
+
+            if (!audio) {
+                audio = new Audio(`https://www.everydaychinese.com/file-mp3/pinyin-chart/${normalizedSyllable}${tone}.mp3`);
+                soundCache[key] = audio;
+            }
+
+            audio.currentTime = 0;
+            audio.play().catch(err => console.error('Error playing audio:', err));
+        }
+
+        document.querySelectorAll('#pinyin td:not(.initials):not(.initials-td)').forEach(cell => {
+            if (cell.textContent.trim()) {
+                cell.addEventListener('click', () => {
+                    const syllable = cell.textContent.trim();
+                    openModal(syllable);
+                });
+            }
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('soundModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

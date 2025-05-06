@@ -1,0 +1,5 @@
+/grammar/advanced/1	HSK4G001	As soon as	一...就...	一看见他就笑。(As soon as I saw him, I smiled.)
+/grammar/advanced/2	HSK4G002	The more...the more	越...越...	越学越有意思。(The more you learn, the more interesting it becomes.)
+/grammar/sentence/1	HSK4G003	Not only...but also	不但...而且...	不但漂亮而且聪明。(Not only beautiful but also clever.)
+/grammar/particles/1	HSK4G004	Resultative with 到	Verb + 到	找到工作了。(Found a job.)
+/grammar/intermediate/1	HSK4G005	Before/After	之前/之后	吃饭之前洗手。(Wash hands before eating.) 

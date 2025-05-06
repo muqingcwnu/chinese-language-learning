@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{% trans 'connections' %} - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Messages Section -->
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Connections List -->
+        <div>
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6 border-b">
+                    <h2 class="text-2xl font-semibold">{% trans 'connections' %}</h2>
+                </div>
+                <div class="p-6">
+                    {% if connections %}
+                    <div class="space-y-6">
+                        {% for connection in connections %}
+                        <div class="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0">
+                            <div class="flex items-center space-x-4">
+                                <div class="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-semibold text-lg">
+                                    {{ connection.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="font-semibold">{{ connection.username }}</div>
+                                    <div class="text-sm text-gray-500">{% trans 'connected_since' %} {{ connection.connected_at|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <a href="{% url 'main_core:inbox' %}?user={{ connection.id }}" class="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">
+                                    {% trans 'send_message' %}
+                                </a>
+                                <form method="POST" action="{% url 'main_core:remove_connection' connection.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-sm text-gray-500 hover:text-red-600 transition-colors">
+                                        {% trans 'remove_connection' %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 text-center">{% trans 'no_connections' %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div>
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6 border-b">
+                    <h2 class="text-2xl font-semibold">{% trans 'friend_requests' %}</h2>
+                </div>
+                <div class="p-6">
+                    {% if pending_requests %}
+                    <div class="space-y-6">
+                        {% for request in pending_requests %}
+                        <div class="border-b pb-4 last:border-b-0 last:pb-0">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-4">
+                                    <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-semibold">
+                                        {{ request.user.username|make_list|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">{{ request.user.username }}</div>
+                                        <div class="text-sm text-gray-500">{{ request.created_at|timesince }} {% trans 'ago' %}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-4">
+                                <form method="POST" action="{% url 'main_core:handle_connection_request' request.id %}" class="flex-1">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="accept">
+                                    <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                                        {% trans 'accept_request' %}
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'main_core:handle_connection_request' request.id %}" class="flex-1">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decline">
+                                    <button type="submit" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                                        {% trans 'decline_request' %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 text-center">{% trans 'no_requests' %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Find New Connections -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden mt-8">
+                <div class="p-6 border-b">
+                    <h2 class="text-2xl font-semibold">{% trans 'find_connections' %}</h2>
+                </div>
+                <div class="p-6">
+                    <form method="GET" class="mb-6">
+                        <div class="flex space-x-4">
+                            <input type="text" name="search" value="{{ search_query }}" class="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="{% trans 'search_users' %}">
+                            <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                                {% trans 'search' %}
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if search_results %}
+                    <div class="space-y-4">
+                        {% for user in search_results %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-semibold">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                                <div class="font-semibold">{{ user.username }}</div>
+                            </div>
+                            {% if user.id in pending_sent_requests %}
+                            <span class="text-sm text-gray-500">{% trans 'request_sent' %}</span>
+                            {% else %}
+                            <form method="POST" action="{% url 'main_core:connect_user' user.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">
+                                    {% trans 'add_friend' %}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% elif search_query %}
+                    <p class="text-gray-500 text-center">{% trans 'no_users_found' %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

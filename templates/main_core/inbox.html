@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{% trans 'inbox' %} - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex h-[calc(100vh-12rem)]">
+        <!-- Connections List -->
+        <div class="w-1/4 bg-white rounded-l-lg shadow-lg border-r border-gray-200 overflow-y-auto">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">{% trans 'messages' %}</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for connection in connections %}
+                <button onclick="loadChat({{ connection.id }})" 
+                        class="w-full p-4 flex items-center space-x-3 hover:bg-red-50 transition-colors duration-200 connection-btn"
+                        data-user-id="{{ connection.id }}">
+                    {% if connection.profile_picture %}
+                        <img src="{{ connection.profile_picture.url }}" alt="{{ connection.username }}" class="h-10 w-10 rounded-full">
+                    {% else %}
+                        <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                            <span class="text-lg text-red-600">{{ connection.username|make_list|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ connection.username }}</p>
+                        <p class="text-xs text-gray-500 truncate">
+                            {% if connection.last_login %}
+                                {% if connection.is_online %}
+                                    <span class="text-green-500">● {% trans 'online' %}</span>
+                                {% else %}
+                                    Last seen {{ connection.last_login|timesince }} {% trans 'ago' %}
+                                {% endif %}
+                            {% endif %}
+                        </p>
+                    </div>
+                </button>
+                {% empty %}
+                <div class="p-4 text-center text-gray-500">
+                    <p>{% trans 'no_connections' %}</p>
+                    <a href="{% url 'main_core:user_connections' %}" class="text-red-600 hover:text-red-700 font-medium">
+                        {% trans 'find_connections' %}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col bg-gray-50 rounded-r-lg">
+            <!-- Initial State -->
+            <div id="initial-state" class="flex-1 flex items-center justify-center">
+                <div class="text-center">
+                    <h3 class="text-lg font-medium text-gray-900">{% trans 'select_chat' %}</h3>
+                    <p class="mt-1 text-sm text-gray-500">{% trans 'choose_connection' %}</p>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="flex-1 hidden flex items-center justify-center">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+                    <p class="mt-2 text-sm text-gray-500">{% trans 'loading' %}...</p>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="flex-1 hidden flex items-center justify-center">
+                <div class="text-center">
+                    <div class="text-red-600 mb-2">
+                        <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <p id="error-message" class="text-sm text-gray-500"></p>
+                    <button onclick="retryLastChat()" class="mt-2 text-red-600 hover:text-red-700 font-medium">
+                        {% trans 'try_again' %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Chat -->
+            <div id="active-chat" class="flex-1 hidden flex flex-col">
+                <div id="chat-header" class="p-4 border-b border-gray-200 bg-white">
+                    <div class="flex items-center space-x-3">
+                        <div id="chat-user-avatar" class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                            <span id="chat-user-initial" class="text-lg text-red-600"></span>
+                        </div>
+                        <div>
+                            <h3 id="chat-username" class="text-lg font-medium text-gray-900"></h3>
+                            <p id="chat-status" class="text-sm text-gray-500"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="messages-container" class="flex-1 p-4 space-y-4 overflow-y-auto">
+                    <!-- Messages will be inserted here -->
+                </div>
+
+                <div class="p-4 border-t border-gray-200 bg-white">
+                    <form id="message-form" class="flex space-x-4">
+                        <input type="text" 
+                               id="message-input"
+                               class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                               placeholder="{% trans 'type_message' %}">
+                        <button type="submit" 
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            {% trans 'send' %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentChatId = null;
+let lastMessageId = null;
+let messageCheckInterval = null;
+let lastLoadedUserId = null;
+
+function showLoadingState() {
+    document.getElementById('initial-state').classList.add('hidden');
+    document.getElementById('error-state').classList.add('hidden');
+    document.getElementById('active-chat').classList.add('hidden');
+    document.getElementById('loading-state').classList.remove('hidden');
+}
+
+function showErrorState(message) {
+    document.getElementById('initial-state').classList.add('hidden');
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('active-chat').classList.add('hidden');
+    document.getElementById('error-state').classList.remove('hidden');
+    document.getElementById('error-message').textContent = message;
+}
+
+function showActiveChat() {
+    document.getElementById('initial-state').classList.add('hidden');
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('error-state').classList.add('hidden');
+    document.getElementById('active-chat').classList.remove('hidden');
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+}
+
+function scrollToBottom() {
+    const container = document.getElementById('messages-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+async function loadChat(userId) {
+    if (userId === lastLoadedUserId) return;
+    lastLoadedUserId = userId;
+    currentChatId = userId;
+    lastMessageId = null;
+    
+    // Clear existing interval if any
+    if (messageCheckInterval) {
+        clearInterval(messageCheckInterval);
+    }
+
+    showLoadingState();
+
+    try {
+        const response = await fetch(`/api/messages/${userId}/`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server response:', errorText);
+            throw new Error(`Failed to load messages: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.status === 'error') {
+            throw new Error(data.message || 'Failed to load messages');
+        }
+
+        // Update chat header
+        const chatUsername = document.getElementById('chat-username');
+        const chatUserInitial = document.getElementById('chat-user-initial');
+        const chatStatus = document.getElementById('chat-status');
+        
+        if (chatUsername && chatUserInitial && chatStatus) {
+            chatUsername.textContent = data.user.username;
+            chatUserInitial.textContent = data.user.username.charAt(0).toUpperCase();
+            chatStatus.textContent = data.user.is_online ? '{% trans "online" %}' : 'Offline';
+            chatStatus.className = `text-sm ${data.user.is_online ? 'text-green-500' : 'text-gray-500'}`;
+        }
+
+        // Display messages
+        displayMessages(data.messages);
+        showActiveChat();
+        scrollToBottom();
+
+        // Update active connection styling
+        document.querySelectorAll('.connection-btn').forEach(btn => {
+            btn.classList.remove('bg-red-50');
+            if (btn.dataset.userId === userId.toString()) {
+                btn.classList.add('bg-red-50');
+            }
+        });
+
+        // Start checking for new messages
+        messageCheckInterval = setInterval(() => checkNewMessages(userId), 5000);
+
+    } catch (error) {
+        console.error('Error loading chat:', error);
+        showErrorState(error.message || 'Failed to load messages');
+    }
+}
+
+function displayMessages(messages) {
+    const container = document.getElementById('messages-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    let currentDate = null;
+
+    messages.forEach(message => {
+        const messageDate = new Date(message.created_at).toLocaleDateString();
+        
+        // Add date separator if it's a new date
+        if (messageDate !== currentDate) {
+            currentDate = messageDate;
+            const dateSeparator = document.createElement('div');
+            dateSeparator.className = 'flex justify-center';
+            dateSeparator.innerHTML = `
+                <div class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
+                    ${messageDate}
+                </div>
+            `;
+            container.appendChild(dateSeparator);
+        }
+
+        const isCurrentUser = message.sender.id === {{ request.user.id }};
+        const messageElement = document.createElement('div');
+        messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
+        messageElement.innerHTML = `
+            <div class="max-w-[70%] ${isCurrentUser ? 'bg-red-600 text-white' : 'bg-white'} rounded-lg px-4 py-2 shadow">
+                <div class="text-sm">${message.content}</div>
+                <div class="text-xs ${isCurrentUser ? 'text-red-100' : 'text-gray-500'} mt-1">
+                    ${new Date(message.created_at).toLocaleTimeString()}
+                </div>
+            </div>
+        `;
+        container.appendChild(messageElement);
+
+        // Update last message ID
+        lastMessageId = Math.max(lastMessageId || 0, message.id);
+    });
+}
+
+async function checkNewMessages(userId) {
+    if (!lastMessageId || userId !== currentChatId) return;
+
+    try {
+        const response = await fetch(`/api/messages/${userId}/?after=${lastMessageId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch new messages');
+
+        const data = await response.json();
+        if (data.status === 'success' && data.messages.length > 0) {
+            displayMessages([...document.querySelectorAll('.message'), ...data.messages]);
+            scrollToBottom();
+            lastMessageId = Math.max(...data.messages.map(m => m.id));
+        }
+    } catch (error) {
+        console.error('Error checking new messages:', error);
+    }
+}
+
+function retryLastChat() {
+    if (lastLoadedUserId !== null) {
+        loadChat(lastLoadedUserId);
+    }
+}
+
+// Message form submission
+const messageForm = document.getElementById('message-form');
+if (messageForm) {
+    messageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const input = document.getElementById('message-input');
+        const content = input.value.trim();
+        
+        if (!content || !currentChatId) {
+            console.error('Cannot send message: content empty or no chat selected');
+            return;
+        }
+        
+        const originalValue = input.value;
+        input.value = '';
+        
+        try {
+            const response = await fetch(`/send-message/${currentChatId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ content }),
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok || data.status === 'error') {
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            }
+
+            // Add the new message to the display
+            const container = document.getElementById('messages-container');
+            if (container) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'flex justify-end';
+                messageElement.innerHTML = `
+                    <div class="max-w-[70%] bg-red-600 text-white rounded-lg px-4 py-2 shadow">
+                        <div class="text-sm">${content}</div>
+                        <div class="text-xs text-red-100 mt-1">
+                            ${new Date().toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(messageElement);
+                scrollToBottom();
+            }
+
+            // Update last message ID if available
+            if (data.message && data.message.id) {
+                lastMessageId = Math.max(lastMessageId || 0, data.message.id);
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            input.value = originalValue; // Restore the message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-red-600 text-sm mt-2';
+            errorDiv.textContent = error.message || '{% trans "error_sending_message" %}';
+            input.parentElement.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+    });
+}
+
+// Initialize chat if user ID is in URL
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user');
+    if (userId) {
+        loadChat(parseInt(userId));
+    }
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

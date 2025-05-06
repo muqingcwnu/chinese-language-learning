@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Mandarin Grammar - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+        <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Mandarin Grammar</h1>
+        <p class="mt-4 text-lg text-gray-500">Master essential Chinese grammar patterns and structures.</p>
+    </div>
+
+    <!-- HSK Level Navigation -->
+    <div class="mt-12">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {% for level in hsk_levels %}
+            <a href="{% url 'mandarin_grammar:level' level.number %}" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-300">
+                <div class="p-5">
+                    <div class="text-center">
+                        <h3 class="text-lg font-medium text-gray-900">HSK {{ level.number }}</h3>
+                        <p class="mt-2 text-sm text-gray-500">{{ level.grammar_count }} patterns</p>
+                        <div class="mt-3">
+                            <div class="relative pt-1">
+                                <div class="overflow-hidden h-2 text-xs flex rounded bg-red-200">
+                                    <div style="width:{{ level.progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"></div>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500">{{ level.completed_count }}/{{ level.grammar_count }} completed</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Featured Grammar Categories -->
+    <div class="mt-16">
+        <h2 class="text-2xl font-bold text-gray-900">Grammar Categories</h2>
+        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for category in categories %}
+            <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center h-12 w-12 rounded-md bg-red-100 text-red-600">
+                                <!-- Icon based on category -->
+                                {% if category.name == 'Sentence Structure' %}
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                                </svg>
+                                {% elif category.name == 'Particles' %}
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                                </svg>
+                                {% else %}
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">{{ category.name }}</h3>
+                            <p class="mt-1 text-sm text-gray-500">{{ category.description }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'mandarin_grammar:category' category.slug %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+                            Explore Patterns
+                            <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Learning Tips -->
+    <div class="mt-16 bg-red-50 rounded-lg">
+        <div class="px-6 py-8">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-900">Grammar Learning Tips</h2>
+                <p class="mt-4 text-gray-500">Follow these tips to master Chinese grammar effectively:</p>
+            </div>
+            <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="bg-white rounded-lg p-6 shadow">
+                    <div class="text-red-600 mb-4">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">Start with Basic Patterns</h3>
+                    <p class="mt-2 text-gray-500">Begin with fundamental sentence structures and gradually build up to more complex patterns.</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow">
+                    <div class="text-red-600 mb-4">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">Practice with Examples</h3>
+                    <p class="mt-2 text-gray-500">Study multiple examples for each grammar pattern to understand its usage in different contexts.</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow">
+                    <div class="text-red-600 mb-4">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">Regular Review</h3>
+                    <p class="mt-2 text-gray-500">Review learned patterns regularly and create your own example sentences to reinforce understanding.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <!-- Recent Progress -->
+    <div class="mt-16">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-gray-900">Your Recent Progress</h2>
+            <a href="{% url 'mandarin_grammar:my_progress' %}" class="text-red-600 hover:text-red-700">View All</a>
+        </div>
+        {% if recent_lessons %}
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for lesson in recent_lessons %}
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">{{ lesson.title }}</h3>
+                            <p class="mt-1 text-sm text-gray-500">HSK{{ lesson.hsk_level }}</p>
+                        </div>
+                        <span class="ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if lesson.completed %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if lesson.completed %}Completed{% else %}In Progress{% endif %}
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'mandarin_grammar:lesson' lesson.id %}" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                            Continue Learning →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="mt-6 text-center bg-white rounded-lg shadow p-6">
+            <p class="text-gray-500">You haven't started any grammar lessons yet.</p>
+            <a href="{% url 'mandarin_grammar:level' 1 %}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                Start with HSK1 Grammar
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

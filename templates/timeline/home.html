@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{% url 'timeline:post-create' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Create New Post
+        </a>
+    </div>
+
+    <div class="space-y-6">
+        {% for post in posts %}
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center mb-4">
+                    <img src="{{ post.user.profile.avatar.url|default:'/static/images/default-avatar.png' }}" 
+                         alt="{{ post.user.username }}" 
+                         class="w-10 h-10 rounded-full mr-4">
+                    <div>
+                        <h3 class="font-bold">{{ post.user.username }}</h3>
+                        <p class="text-gray-500 text-sm">{{ post.created_at|timesince }} ago</p>
+                    </div>
+                </div>
+
+                <p class="mb-4">{{ post.content }}</p>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post image" class="mb-4 rounded-lg max-w-full">
+                {% endif %}
+
+                <div class="flex space-x-4">
+                    <button class="like-btn" data-post-id="{{ post.id }}" data-liked="{% if request.user in post.likes.all %}true{% else %}false{% endif %}">
+                        <span class="like-count">{{ post.get_like_count }}</span> Likes
+                    </button>
+                    <button class="share-btn" data-post-id="{{ post.id }}" data-shared="{% if request.user in post.shares.all %}true{% else %}false{% endif %}">
+                        <span class="share-count">{{ post.get_share_count }}</span> Shares
+                    </button>
+                    <a href="{% url 'timeline:post-detail' post.pk %}" class="text-blue-500 hover:text-blue-700">
+                        {{ post.comments.count }} Comments
+                    </a>
+                </div>
+
+                {% if request.user == post.user %}
+                <div class="mt-4 space-x-2">
+                    <a href="{% url 'timeline:post-update' post.pk %}" class="text-blue-500 hover:text-blue-700">Edit</a>
+                    <a href="{% url 'timeline:post-delete' post.pk %}" class="text-red-500 hover:text-red-700">Delete</a>
+                </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="text-center text-gray-500">No posts yet. Be the first to post!</p>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="flex justify-center mt-6">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="mx-1 px-3 py-2 bg-gray-200 rounded">&laquo; First</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="mx-1 px-3 py-2 bg-gray-200 rounded">Previous</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="mx-1 px-3 py-2 bg-blue-500 text-white rounded">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="mx-1 px-3 py-2 bg-gray-200 rounded">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="mx-1 px-3 py-2 bg-gray-200 rounded">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="mx-1 px-3 py-2 bg-gray-200 rounded">Last &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Like functionality
+    document.querySelectorAll('.like-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            fetch(`/timeline/post/${postId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.querySelector('.like-count').textContent = data.count;
+                this.dataset.liked = data.liked;
+            });
+        });
+    });
+
+    // Share functionality
+    document.querySelectorAll('.share-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            fetch(`/timeline/post/${postId}/share/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.querySelector('.share-count').textContent = data.count;
+                this.dataset.shared = data.shared;
+            });
+        });
+    });
+
+    // CSRF token helper function
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

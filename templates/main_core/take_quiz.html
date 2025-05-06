@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{% trans 'take_quiz' %} - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Debug Info Section -->
+    <div id="debugInfo" class="mb-8 p-4 bg-gray-100 rounded-lg">
+        <h3 class="font-bold mb-2">{% trans 'debug_info' %}:</h3>
+        <pre id="debugText" class="whitespace-pre-wrap"></pre>
+    </div>
+
+    <!-- Messages Section -->
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <!-- Quiz Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">{% trans quiz.get_quiz_type_display %} {% trans 'quiz' %}</h1>
+                <p class="text-gray-600">HSK {% trans 'level' %} {{ quiz.hsk_level }}</p>
+            </div>
+            <div id="timer" class="text-2xl font-mono bg-red-100 text-red-800 px-4 py-2 rounded-lg">
+                {% trans 'time_remaining' %}: <span id="timer-value">02:00</span>
+            </div>
+        </div>
+
+        <!-- Quiz Form -->
+        <form method="POST" id="quizForm" class="space-y-8" onsubmit="return handleQuizSubmit(event)">
+            {% csrf_token %}
+            
+            {% for question in questions %}
+                <div class="question-container bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">{% trans 'question' %} {{ forloop.counter }}</h3>
+                    
+                    {% if question.question_type == 'vocab' %}
+                        <!-- Vocabulary Question -->
+                        <p class="text-2xl mb-2">{{ question.question_text }}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            {% for option in question.options %}
+                            <label class="relative">
+                                <input type="radio" name="answer_{{ question.id }}" value="{{ option }}" class="hidden peer" required onchange="logAnswer({{ question.id }}, '{{ option }}')">
+                                <div class="border-2 border-gray-300 rounded-lg p-4 cursor-pointer transition-all peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-50">
+                                    {{ option }}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    
+                    {% elif question.question_type == 'grammar' %}
+                        <!-- Grammar Question -->
+                        <p class="text-lg mb-4">{{ question.question_text }}</p>
+                        <div class="grid grid-cols-1 gap-4">
+                            {% for option in question.options %}
+                            <label class="relative">
+                                <input type="radio" name="answer_{{ question.id }}" value="{{ option }}" class="hidden peer" required onchange="logAnswer({{ question.id }}, '{{ option }}')">
+                                <div class="border-2 border-gray-300 rounded-lg p-4 cursor-pointer transition-all peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-50">
+                                    {{ option }}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    
+                    {% else %}
+                        <!-- Sentence Question -->
+                        {% with sentence_data=question.question_text|json_script:"sentence-data-"|safe %}
+                        <div class="space-y-4">
+                            <p class="text-lg">{% trans 'arrange_sentence' %}:</p>
+                            <p class="text-gray-600">{{ sentence_data.english }}</p>
+                            <p class="text-gray-600">{% trans 'pinyin' %}: {{ sentence_data.pinyin }}</p>
+                            
+                            <div class="flex flex-wrap gap-2" id="word-container-{{ question.id }}">
+                                {% for word in sentence_data.scrambled %}
+                                <div class="bg-white border-2 border-gray-300 rounded px-3 py-1 cursor-move" draggable="true" data-word="{{ word }}">
+                                    {{ word }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <input type="hidden" name="answer_{{ question.id }}" id="answer-{{ question.id }}" required>
+                        </div>
+                        {% endwith %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="text-center mt-8">
+                <button type="submit" id="submitQuizBtn" class="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                    {% trans 'submit_quiz' %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function logDebug(message) {
+        const debugText = document.getElementById('debugText');
+        const timestamp = new Date().toLocaleTimeString();
+        debugText.textContent += `[${timestamp}] ${message}\n`;
+        console.log(`[${timestamp}] ${message}`);  // Also log to console
+    }
+
+    function logAnswer(questionId, answer) {
+        logDebug(`Question ${questionId} answered: ${answer}`);
+    }
+
+    // Timer functionality
+    function startTimer(duration, display) {
+        let timer = duration;
+        const interval = setInterval(function () {
+            const minutes = parseInt(timer / 60, 10);
+            const seconds = parseInt(timer % 60, 10);
+
+            display.textContent = minutes.toString().padStart(2, '0') + ':' + 
+                                seconds.toString().padStart(2, '0');
+
+            if (--timer < 0) {
+                clearInterval(interval);
+                logDebug('Timer expired - submitting quiz');
+                document.getElementById('quizForm').submit();
+            }
+        }, 1000);
+    }
+
+    // Start timer when page loads
+    window.onload = function () {
+        const display = document.querySelector('#timer');
+        const timeLimit = parseInt('{{ time_limit }}', 10);
+        logDebug(`Starting timer with ${timeLimit} seconds`);
+        startTimer(timeLimit, display);
+    };
+
+    // Form submission handling
+    function handleQuizSubmit(event) {
+        event.preventDefault();
+        logDebug('Quiz submission started');
+        
+        const form = event.target;
+        const submitButton = document.getElementById('submitQuizBtn');
+        
+        // Check if all questions are answered
+        const questions = document.querySelectorAll('.question-container');
+        let allAnswered = true;
+        
+        questions.forEach((question, index) => {
+            const questionId = question.querySelector('input[type="radio"], input[type="hidden"]').name.split('_')[1];
+            const answer = form.elements[`answer_${questionId}`].value;
+            
+            if (!answer) {
+                allAnswered = false;
+                logDebug(`Question ${index + 1} (ID: ${questionId}) is not answered`);
+            } else {
+                logDebug(`Question ${index + 1} (ID: ${questionId}) answer: ${answer}`);
+            }
+        });
+        
+        if (!allAnswered) {
+            alert('Please answer all questions before submitting.');
+            logDebug('Submission blocked: Not all questions answered');
+            return false;
+        }
+        
+        // Disable submit button and show loading state
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Submitting...';
+        logDebug('All questions answered, submitting form...');
+        
+        // Submit the form
+        form.submit();
+        return false;
+    }
+
+    // Drag and drop functionality for sentence questions
+    document.querySelectorAll('[id^="word-container-"]').forEach(container => {
+        const questionId = container.id.split('-')[2];
+        const answerInput = document.getElementById(`answer-${questionId}`);
+        
+        container.addEventListener('dragstart', function(e) {
+            e.target.classList.add('opacity-50', 'dragging');
+            logDebug(`Started dragging word in question ${questionId}`);
+        });
+
+        container.addEventListener('dragend', function(e) {
+            e.target.classList.remove('opacity-50', 'dragging');
+            updateAnswer(container, answerInput);
+            logDebug(`Updated answer for question ${questionId}`);
+        });
+
+        container.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            const draggable = document.querySelector('.dragging');
+            if (draggable) {
+                const afterElement = getDragAfterElement(container, e.clientY);
+                if (afterElement) {
+                    container.insertBefore(draggable, afterElement);
+                } else {
+                    container.appendChild(draggable);
+                }
+            }
+        });
+    });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('[draggable]:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function updateAnswer(container, input) {
+        const words = Array.from(container.children).map(el => el.dataset.word);
+        input.value = words.join(' ');
+        logDebug(`Answer updated: ${input.value}`);
+    }
+
+    // Log initial page load
+    logDebug('Quiz page loaded');
+    logDebug(`Quiz type: {{ quiz.quiz_type }}`);
+    logDebug(`HSK level: {{ quiz.hsk_level }}`);
+    logDebug(`Number of questions: {{ questions|length }}`);
+</script>
+{% endblock %} 

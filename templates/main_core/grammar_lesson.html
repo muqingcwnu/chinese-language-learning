@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load translation_tags %}
+
+{% block title %}{{ lesson.title }} - {% trans 'chinese_grammar' %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ isLoading: false }">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <!-- Grammar Lesson Header -->
+        <div class="px-4 py-5 sm:px-6 bg-red-50">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ lesson.title_en }}</h1>
+                    <p class="mt-1 text-xl chinese-text">{{ lesson.title_zh }}</p>
+                    <p class="mt-1 text-sm text-gray-500">HSK{{ lesson.hsk_level }} - {{ lesson.get_category_display }}</p>
+                </div>
+                <div>
+                    {% if user.is_authenticated %}
+                    <button 
+                        @click="!isLoading && toggleCompleted({{ lesson.id }})"
+                        :disabled="isLoading"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {% if user_lesson.is_completed %}bg-green-600 hover:bg-green-700{% else %}bg-red-600 hover:bg-red-700{% endif %} text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50">
+                        <span x-text="isLoading ? '{% trans "updating" %}...' : '{% if user_lesson.is_completed %}{% trans "completed" %}{% else %}{% trans "mark_complete" %}{% endif %}'"></span>
+                        {% if user_lesson.is_completed and user_lesson.completed_at %}
+                        <span class="ml-2 text-xs">({{ user_lesson.completed_at|date:"M d, Y" }})</span>
+                        {% endif %}
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Grammar Content -->
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <!-- Grammar Pattern -->
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500">{% trans 'grammar_pattern' %}</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="font-mono">{{ lesson.pattern }}</p>
+                        </div>
+                    </dd>
+                </div>
+
+                <!-- Example -->
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500">{% trans 'example' %}</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p>{{ lesson.example }}</p>
+                        </div>
+                    </dd>
+                </div>
+
+                {% if explanation %}
+                <!-- AI-Generated Explanation -->
+                <div class="sm:col-span-2">
+                    <div class="bg-white rounded-lg shadow">
+                        <!-- Detailed Explanation -->
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">{% trans 'detailed_explanation' %}</h3>
+                            <div class="mt-4 prose max-w-none">
+                                {{ explanation.detailed_explanation|linebreaks }}
+                            </div>
+                        </div>
+
+                        <!-- Usage Notes -->
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">{% trans 'usage_notes' %}</h3>
+                            <div class="mt-4 prose max-w-none">
+                                {{ explanation.usage_notes|linebreaks }}
+                            </div>
+                        </div>
+
+                        <!-- Additional Examples -->
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">{% trans 'additional_examples' %}</h3>
+                            <div class="mt-4 prose max-w-none">
+                                {{ explanation.additional_examples|linebreaks }}
+                            </div>
+                        </div>
+
+                        <!-- Common Mistakes -->
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900">{% trans 'common_mistakes' %}</h3>
+                            <div class="mt-4 prose max-w-none">
+                                {{ explanation.common_mistakes|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Retry Button -->
+                    <div class="mt-4 flex justify-end">
+                        <button 
+                            @click="!isLoading && retryExplanation({{ lesson.id }})"
+                            :disabled="isLoading"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50">
+                            <svg x-show="!isLoading" class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <svg x-show="isLoading" class="animate-spin mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-text="isLoading ? '{% trans "generating" %}...' : '{% trans "regenerate_explanation" %}'"></span>
+                        </button>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Error State -->
+                <div class="sm:col-span-2">
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">{% trans 'explanation_error' %}</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p>{% trans 'explanation_error_message' %}</p>
+                                </div>
+                                <div class="mt-4">
+                                    <button 
+                                        @click="!isLoading && retryExplanation({{ lesson.id }})"
+                                        :disabled="isLoading"
+                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50">
+                                        <svg x-show="!isLoading" class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                        <svg x-show="isLoading" class="animate-spin mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span x-text="isLoading ? '{% trans "trying" %}...' : '{% trans "try_again" %}'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function toggleCompleted(lessonId) {
+    if (window.isLoading) return;
+    window.isLoading = true;
+    
+    fetch(`/grammar/lesson/${lessonId}/toggle-completed/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            console.error('Error:', data.message);
+            alert('Failed to update lesson status. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update lesson status. Please try again.');
+    })
+    .finally(() => {
+        window.isLoading = false;
+    });
+}
+
+function retryExplanation(lessonId) {
+    if (window.isLoading) return;
+    window.isLoading = true;
+    
+    fetch(`/grammar/lesson/${lessonId}/explanation/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            console.error('Error:', data.message);
+            alert('Failed to generate explanation. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to generate explanation. Please try again.');
+    })
+    .finally(() => {
+        window.isLoading = false;
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
+{% endblock %} 

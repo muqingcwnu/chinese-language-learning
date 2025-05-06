@@ -1,0 +1,12 @@
+
+=== Starting API Test ===
+
+API Key (first 8 chars): sk-46771
+
+URL: https://api.deepseek.ai/v1/chat/completions
+Headers: {'Authorization': 'Bearer sk-467710c038f1445e8bc30c4245d7ad92', 'Content-Type': 'application/json'}
+Payload: {'model': 'deepseek-chat', 'messages': [{'role': 'user', 'content': '你好'}]}
+
+Making API request...
+
+Request Error: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))

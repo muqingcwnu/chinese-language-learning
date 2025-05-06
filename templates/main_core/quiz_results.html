@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quiz Results - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold mb-4">Quiz Results</h1>
+        <div class="inline-flex items-center space-x-4">
+            <span class="text-gray-600">HSK {{ quiz.hsk_level }} {{ quiz.quiz_type|title }}</span>
+            <span class="text-gray-400">|</span>
+            <span class="text-gray-600">{{ quiz.duration }} seconds</span>
+        </div>
+    </div>
+    
+    <!-- Score Summary -->
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div class="p-4 bg-red-50 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Total Score</h3>
+                <p class="text-4xl font-bold text-red-600">{{ quiz.score }}/{{ total_points }}</p>
+                <p class="text-sm text-gray-500 mt-2">
+                    {{ quiz.score|floatformat:1 }}% Accuracy
+                </p>
+            </div>
+            
+            <div class="p-4 bg-green-50 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Correct Answers</h3>
+                <p class="text-4xl font-bold text-green-600">{{ correct_answers }}/{{ questions|length }}</p>
+                <p class="text-sm text-gray-500 mt-2">Questions</p>
+            </div>
+            
+            <div class="p-4 bg-blue-50 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Time Taken</h3>
+                <p class="text-4xl font-bold text-blue-600">{{ quiz.duration }}s</p>
+                <p class="text-sm text-gray-500 mt-2">
+                    {% widthratio quiz.duration questions|length 1 %}s per question
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Results -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-6">Question Review</h2>
+        
+        <div class="space-y-6">
+            {% for question in questions %}
+            <div class="border-2 {% if question.is_correct %}border-green-200 bg-green-50{% else %}border-red-200 bg-red-50{% endif %} rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-semibold">Question {{ forloop.counter }}</h3>
+                    <span class="px-3 py-1 rounded-full {% if question.is_correct %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
+                        {{ question.points }} points
+                    </span>
+                </div>
+                
+                {% if question.question_type == 'vocab' %}
+                <div class="mb-4">
+                    <p class="text-2xl mb-2">{{ question.question_text }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        {% for option in question.options %}
+                        <div class="border-2 rounded-lg p-4 {% if option == question.correct_answer %}bg-green-100 border-green-300{% elif option == question.user_answer and not question.is_correct %}bg-red-100 border-red-300{% else %}bg-gray-50 border-gray-200{% endif %}">
+                            {{ option }}
+                            {% if option == question.correct_answer %}
+                            <span class="ml-2 text-green-600">✓</span>
+                            {% elif option == question.user_answer and not question.is_correct %}
+                            <span class="ml-2 text-red-600">✗</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                {% elif question.question_type == 'grammar' %}
+                <div class="mb-4">
+                    <p class="text-lg mb-4">{{ question.question_text }}</p>
+                    <div class="space-y-4">
+                        {% for option in question.options %}
+                        <div class="border-2 rounded-lg p-4 {% if option == question.correct_answer %}bg-green-100 border-green-300{% elif option == question.user_answer and not question.is_correct %}bg-red-100 border-red-300{% else %}bg-gray-50 border-gray-200{% endif %}">
+                            {{ option }}
+                            {% if option == question.correct_answer %}
+                            <span class="ml-2 text-green-600">✓</span>
+                            {% elif option == question.user_answer and not question.is_correct %}
+                            <span class="ml-2 text-red-600">✗</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                {% else %}
+                {% comment %} Sentence Rearrangement {% endcomment %}
+                {% with sentence_data=question.question_text|json_script:"sentence-data-"|safe %}
+                <div class="mb-4">
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">Your Answer:</p>
+                        <div class="p-4 border-2 rounded-lg {% if question.is_correct %}bg-green-100 border-green-300{% else %}bg-red-100 border-red-300{% endif %}">
+                            {{ question.user_answer }}
+                        </div>
+                    </div>
+                    
+                    {% if not question.is_correct %}
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">Correct Answer:</p>
+                        <div class="p-4 border-2 border-green-300 bg-green-100 rounded-lg">
+                            {{ question.correct_answer }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-sm text-gray-600 mt-4">
+                        <p class="mb-1"><strong>Pinyin:</strong> {{ sentence_data.pinyin }}</p>
+                        <p><strong>English:</strong> {{ sentence_data.english }}</p>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="flex justify-center space-x-4 mt-8">
+        <a href="{% url 'main_core:quiz_home' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+            Back to Quizzes
+        </a>
+        <form method="POST" action="{% url 'main_core:start_quiz' %}" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="quiz_type" value="{{ quiz.quiz_type }}">
+            <input type="hidden" name="hsk_level" value="{{ quiz.hsk_level }}">
+            <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                Try Again
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

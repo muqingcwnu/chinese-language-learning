@@ -1,0 +1,39 @@
+msgid "pinyin_chart"
+msgstr "Mandarin Chinese Pinyin Chart"
+
+msgid "pinyin_chart_desc"
+msgstr "Master Chinese pronunciation with our interactive Pinyin chart. Click on any syllable to hear its pronunciation and learn how to say it correctly."
+
+# Grammar Lesson Translations
+msgid "chinese_grammar"
+msgstr "Chinese Grammar"
+
+msgid "grammar_pattern"
+msgstr "Grammar Pattern"
+
+msgid "example"
+msgstr "Example"
+
+msgid "detailed_explanation"
+msgstr "Detailed Explanation"
+
+msgid "usage_notes"
+msgstr "Usage Notes"
+
+msgid "additional_examples"
+msgstr "Additional Examples"
+
+msgid "common_mistakes"
+msgstr "Common Mistakes"
+
+msgid "completed"
+msgstr "Completed"
+
+msgid "mark_complete"
+msgstr "Mark as Complete"
+
+msgid "explanation_error"
+msgstr "Explanation Unavailable"
+
+msgid "explanation_error_message"
+msgstr "We're having trouble generating the explanation. Please try again later." 

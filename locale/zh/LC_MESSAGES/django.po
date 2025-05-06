@@ -1,0 +1,39 @@
+msgid "pinyin_chart"
+msgstr "汉语拼音表"
+
+msgid "pinyin_chart_desc"
+msgstr "通过我们的互动拼音表掌握中文发音。点击任何音节即可听到其发音并学习如何正确发音。"
+
+# Grammar Lesson Translations
+msgid "chinese_grammar"
+msgstr "中文语法"
+
+msgid "grammar_pattern"
+msgstr "语法规则"
+
+msgid "example"
+msgstr "例句"
+
+msgid "detailed_explanation"
+msgstr "详细解释"
+
+msgid "usage_notes"
+msgstr "使用说明"
+
+msgid "additional_examples"
+msgstr "更多例句"
+
+msgid "common_mistakes"
+msgstr "常见错误"
+
+msgid "completed"
+msgstr "已完成"
+
+msgid "mark_complete"
+msgstr "标记为完成"
+
+msgid "explanation_error"
+msgstr "解释暂时不可用"
+
+msgid "explanation_error_message"
+msgstr "生成解释时遇到问题，请稍后再试。" 

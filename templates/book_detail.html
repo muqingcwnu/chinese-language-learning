@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ book.title }} - Chapters{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="{% url 'main_core:lessons_home' %}" class="text-red-600 hover:text-red-700 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Books
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ book.title }}</h1>
+        <p class="text-xl text-gray-600 mb-6">{{ book.description }}</p>
+        <div class="flex items-center text-gray-500 mb-4">
+            <span class="mr-4">HSK Level {{ book.hsk_level }}</span>
+            <span>{{ book.chapters.count }} Chapters</span>
+        </div>
+    </div>
+
+    <div class="grid gap-6">
+        {% for chapter in chapters %}
+        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+            <a href="{% url 'main_core:lesson_detail' book.id chapter.chapter_number %}" class="block p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                            Chapter {{ chapter.chapter_number }}: {{ chapter.title }}
+                        </h3>
+                        <p class="text-gray-600">{{ chapter.description }}</p>
+                    </div>
+                    <div class="flex items-center text-red-600">
+                        <span class="mr-2">Start Learning</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                {% if chapter.vocabulary_words.exists %}
+                <div class="mt-4 flex items-center text-sm text-gray-500">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    {{ chapter.vocabulary_words.count }} Vocabulary Words
+                </div>
+                {% endif %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

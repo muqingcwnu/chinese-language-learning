@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}HSK {{ hsk_level }} Textbook - China's Legacy{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+<style>
+    #pdf-container {
+        width: 100%;
+        height: calc(100vh - 200px);
+        overflow: auto;
+        background: #f3f4f6;
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+    #pdf-viewer {
+        max-width: 100%;
+        height: auto;
+    }
+    .controls {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 1rem;
+        z-index: 1000;
+    }
+    .control-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .control-btn:hover {
+        background: #f3f4f6;
+    }
+    .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    #page-num {
+        min-width: 80px;
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+    }
+    .zoom-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    #loading-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    #error-message {
+        display: none;
+        color: #dc2626;
+        text-align: center;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">HSK Level {{ hsk_level }} Textbook</h1>
+        <p class="text-gray-600 mt-2">Use the controls below to navigate through the textbook.</p>
+    </div>
+
+    <div id="pdf-container" class="rounded-lg shadow-lg">
+        <div id="loading-message">Loading PDF...</div>
+        <canvas id="pdf-viewer"></canvas>
+        <div id="error-message"></div>
+    </div>
+
+    <div class="controls">
+        <button id="prev" class="control-btn" disabled>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <span>Page <input type="text" id="page-num" readonly> of <span id="page-count"></span></span>
+        <button id="next" class="control-btn" disabled>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+        <div class="zoom-controls">
+            <button id="zoom-out" class="control-btn" disabled>-</button>
+            <span id="zoom-level">100%</span>
+            <button id="zoom-in" class="control-btn" disabled>+</button>
+        </div>
+    </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfDoc = null,
+    pageNum = 1,
+    pageRendering = false,
+    pageNumPending = null,
+    scale = 1.0,
+    canvas = document.getElementById('pdf-viewer'),
+    ctx = canvas.getContext('2d');
+
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    document.getElementById('loading-message').style.display = 'none';
+}
+
+function enableControls() {
+    document.getElementById('prev').disabled = false;
+    document.getElementById('next').disabled = false;
+    document.getElementById('zoom-in').disabled = false;
+    document.getElementById('zoom-out').disabled = false;
+}
+
+function renderPage(num) {
+    pageRendering = true;
+    pdfDoc.getPage(num).then(function(page) {
+        const viewport = page.getViewport({scale: scale});
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+        };
+        
+        const renderTask = page.render(renderContext);
+
+        renderTask.promise.then(function() {
+            pageRendering = false;
+            if (pageNumPending !== null) {
+                renderPage(pageNumPending);
+                pageNumPending = null;
+            }
+            document.getElementById('loading-message').style.display = 'none';
+        });
+    });
+
+    document.getElementById('page-num').value = num;
+    document.getElementById('prev').disabled = num <= 1;
+    document.getElementById('next').disabled = num >= pdfDoc.numPages;
+}
+
+function queueRenderPage(num) {
+    if (pageRendering) {
+        pageNumPending = num;
+    } else {
+        renderPage(num);
+    }
+}
+
+function onPrevPage() {
+    if (pageNum <= 1) return;
+    pageNum--;
+    queueRenderPage(pageNum);
+}
+
+function onNextPage() {
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    queueRenderPage(pageNum);
+}
+
+function updateZoomLevel() {
+    document.getElementById('zoom-level').textContent = `${Math.round(scale * 100)}%`;
+}
+
+function onZoomIn() {
+    if (scale >= 3.0) return;
+    scale += 0.25;
+    updateZoomLevel();
+    queueRenderPage(pageNum);
+}
+
+function onZoomOut() {
+    if (scale <= 0.25) return;
+    scale -= 0.25;
+    updateZoomLevel();
+    queueRenderPage(pageNum);
+}
+
+document.getElementById('prev').addEventListener('click', onPrevPage);
+document.getElementById('next').addEventListener('click', onNextPage);
+document.getElementById('zoom-in').addEventListener('click', onZoomIn);
+document.getElementById('zoom-out').addEventListener('click', onZoomOut);
+
+// Load the PDF
+pdfjsLib.getDocument('{{ pdf_url }}').promise
+    .then(function(pdfDoc_) {
+        pdfDoc = pdfDoc_;
+        document.getElementById('page-count').textContent = pdfDoc.numPages;
+        enableControls();
+        renderPage(pageNum);
+    })
+    .catch(function(error) {
+        showError('Error loading PDF: ' + error.message);
+        console.error('Error loading PDF:', error);
+    });
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    if (pdfDoc) {
+        renderPage(pageNum);
+    }
+});
+
+// Add keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        onPrevPage();
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        onNextPage();
+    }
+});
+</script>
+{% endblock %} 

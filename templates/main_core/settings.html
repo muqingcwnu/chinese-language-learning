@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load translation_tags %}
+
+{% block title %}{% trans 'settings' %} - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="space-y-8">
+        <!-- Header -->
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">{% trans 'settings' %}</h1>
+            <p class="mt-2 text-sm text-gray-500">Manage your account settings and preferences.</p>
+        </div>
+
+        {% if messages %}
+        <div class="rounded-md bg-green-50 p-4">
+            {% for message in messages %}
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800">{{ message }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Profile Section -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Profile Information</h3>
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <!-- Profile Picture -->
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-gray-700">Profile Picture</label>
+                            <div class="mt-2 flex items-center space-x-5">
+                                {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile picture" class="h-20 w-20 rounded-full object-cover">
+                                {% else %}
+                                <div class="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <svg class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <div class="flex-grow">
+                                    {{ form.profile_picture|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="sm:col-span-3">
+                            {{ form.full_name|as_crispy_field }}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="sm:col-span-3">
+                            {{ form.email|as_crispy_field }}
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="sm:col-span-3">
+                            {{ form.phone|as_crispy_field }}
+                        </div>
+
+                        <!-- Age -->
+                        <div class="sm:col-span-3">
+                            {{ form.age|as_crispy_field }}
+                        </div>
+
+                        <!-- Nationality -->
+                        <div class="sm:col-span-3">
+                            {{ form.nationality|as_crispy_field }}
+                        </div>
+
+                        <!-- HSK Level -->
+                        <div class="sm:col-span-3">
+                            {{ form.current_hsk_level|as_crispy_field }}
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="sm:col-span-6">
+                            {{ form.bio|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Information -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Academic Information</h3>
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <!-- Institute -->
+                        <div class="sm:col-span-3">
+                            {{ form.institute|as_crispy_field }}
+                        </div>
+
+                        <!-- Field of Study -->
+                        <div class="sm:col-span-3">
+                            {{ form.university_field|as_crispy_field }}
+                        </div>
+
+                        <!-- Student ID -->
+                        <div class="sm:col-span-3">
+                            {{ form.student_id|as_crispy_field }}
+                        </div>
+
+                        <!-- Batch -->
+                        <div class="sm:col-span-3">
+                            {{ form.batch|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Account Actions</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <a href="{% url 'account_change_password' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-chinese-red">
+                                Change Password
+                            </a>
+                        </div>
+                        <div>
+                            <form method="POST" action="{% url 'main_core:settings' %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" name="download_data" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-chinese-red">
+                                    Download Your Data
+                                </button>
+                            </form>
+                        </div>
+                        <div>
+                            <form method="POST" action="{% url 'main_core:settings' %}" class="inline" id="deleteAccountForm">
+                                {% csrf_token %}
+                                <button type="button" onclick="confirmDeleteAccount()" class="inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                    Delete Account
+                                </button>
+                                <input type="hidden" name="delete_account" value="1">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Changes Button -->
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-chinese-red hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-chinese-red">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function confirmDeleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        document.getElementById('deleteAccountForm').submit();
+    }
+}
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,119 @@
+2025-05-02 02:21:20,576 - ERROR - Error Type: API Request Error
+Message: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by ProtocolError('Connection aborted.', FileNotFoundError(2, 'No such file or directory')))
+2025-05-02 02:21:54,900 - ERROR - Error Type: API Request Error
+Message: HTTPSConnectionPool(host='34.107.189.223', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by ProtocolError('Connection aborted.', FileNotFoundError(2, 'No such file or directory')))
+2025-05-02 02:26:08,731 - ERROR - Error Type: DNS Resolution Error
+Message: Failed to resolve api.deepseek.ai: The DNS query name does not exist: api.deepseek.ai.
+2025-05-02 02:26:08,784 - ERROR - Error Type: DNS Resolution Error
+Message: Failed to resolve api.deepseek.ai: The DNS query name does not exist: api.deepseek.ai.
+2025-05-02 02:26:08,828 - ERROR - Error Type: DNS Resolution Error
+Message: Failed to resolve api.deepseek.ai: The DNS query name does not exist: api.deepseek.ai.
+2025-05-02 02:26:08,868 - ERROR - Error Type: DNS Resolution Error
+Message: Failed to resolve api.deepseek.ai: The DNS query name does not exist: api.deepseek.ai.
+2025-05-02 02:28:37,146 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:28:37,390 - ERROR - Error Type: Proxy Error
+Message: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:29:06,637 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:29:06,898 - ERROR - Error Type: Proxy Error
+Message: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:29:09,203 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:29:38,403 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:31:12,758 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:31:13,705 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api2.deepseek.ai/v1: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+2025-05-02 02:31:45,158 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:33:48,916 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:33:49,153 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api2.deepseek.ai/v1: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+2025-05-02 02:33:49,495 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:33:50,850 - ERROR - Error Type: Proxy Error
+Message: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:33:56,543 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:34:22,300 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:34:28,069 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:35:00,542 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:35:32,350 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:37:36,250 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:37:36,814 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:38:04,395 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:38:12,096 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:38:36,947 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:38:44,661 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:39:02,264 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:39:02,495 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:39:08,453 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:39:35,040 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:39:40,957 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:40:06,561 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:40:06,814 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 02:40:39,410 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:40:48,506 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:41:19,992 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 02:41:44,568 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-02 18:21:13,072 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-02 18:21:48,003 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:23:51,640 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-05 22:24:27,323 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:25:05,489 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:25:19,632 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:25:38,441 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:27:24,636 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:29:30,468 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:30:04,331 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:30:08,216 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:30:08,878 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPSConnectionPool(host='api.deepseek.ai', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:997)')))
+2025-05-05 22:30:44,292 - ERROR - Error Type: HTTP Fallback Error
+Message: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:31:57,270 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:32:17,258 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://34.107.189.223/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://api.deepseek.ai/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:32:31,878 - ERROR - Error Type: Request Error
+Message: Failed with endpoint http://52.58.133.175/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://34.107.189.223/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 22:33:57,764 - ERROR - Error Type: Request Error
+Message: Failed with endpoint https://api.deepseek.ai/v1: HTTPConnectionPool(host='127.0.0.1', port=7890): Max retries exceeded with url: http://52.58.133.175/v1/chat/completions (Caused by ResponseError('too many 502 error responses'))
+2025-05-05 23:52:48,472 - ERROR - Error generating sentence questions: Expecting value: line 1 column 1 (char 0)
+2025-05-05 23:52:48,472 - ERROR - Error generating sentence questions: Expecting value: line 1 column 1 (char 0)
+2025-05-05 23:52:48,472 - ERROR - Error generating sentence questions: Expecting value: line 1 column 1 (char 0)

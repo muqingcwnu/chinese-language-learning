@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chinese Lessons - HSK Books{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Chinese Lessons</h1>
+        <p class="text-xl text-gray-600">Structured learning materials organized by HSK levels</p>
+    </div>
+
+    {% for level, books in books_by_level.items %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">HSK Level {{ level }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for book in books %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ book.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ book.description }}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">{{ book.chapters.count }} Chapters</span>
+                        <a href="{% url 'main_core:book_detail' book.id %}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                            View Book
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

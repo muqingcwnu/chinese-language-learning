@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Log In" %} - China's Legacy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 fade-in-up">
+        <div>
+            <img class="mx-auto h-24 w-auto transform hover:scale-105 transition-transform duration-300" src="{% static 'images/logo.jpg' %}" alt="China's Legacy">
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                {% trans "Welcome back" %}
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                {% trans "Or" %}
+                <a href="{% url 'user_auth:signup' %}" class="font-medium text-chinese-red hover:text-red-700 transition-colors duration-200">
+                    {% trans "create a new account" %}
+                </a>
+            </p>
+        </div>
+
+        {% if messages %}
+        <div class="rounded-md p-4 {% if message.tags == 'error' %}bg-red-50{% else %}bg-green-50{% endif %} fade-in-up">
+            {% for message in messages %}
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    {% if message.tags == 'error' %}
+                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {% else %}
+                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800{% else %}text-green-800{% endif %}">
+                        {{ message }}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form class="mt-8 space-y-6" method="POST" action="{% url 'user_auth:login' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div class="group">
+                    <label for="id_login" class="sr-only">{% trans "Email or Username" %}</label>
+                    <input id="id_login" name="login" type="text" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md 
+                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
+                                  transition-colors duration-200"
+                           placeholder="{% trans 'Email or Username' %}">
+                </div>
+                <div class="group">
+                    <label for="id_password" class="sr-only">{% trans "Password" %}</label>
+                    <input id="id_password" name="password" type="password" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md 
+                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
+                                  transition-colors duration-200"
+                           placeholder="{% trans 'Password' %}">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input id="remember_me" name="remember" type="checkbox" 
+                           class="h-4 w-4 text-chinese-red focus:ring-chinese-red border-gray-300 rounded
+                                  transition-colors duration-200">
+                    <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+                        {% trans "Remember me" %}
+                    </label>
+                </div>
+
+                <div class="text-sm">
+                    <a href="{% url 'password_reset' %}" 
+                       class="font-medium text-chinese-red hover:text-red-700 transition-colors duration-200">
+                        {% trans "Forgot your password?" %}
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white 
+                               bg-chinese-red hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-chinese-red
+                               transform hover:scale-[1.02] transition-all duration-200">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-red-200 group-hover:text-red-300 transition-colors duration-200" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                    </span>
+                    {% trans "Sign in" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

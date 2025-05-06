@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{% trans 'quiz' %} - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Debug Info Section -->
+    <div id="debugInfo" class="mb-8 p-4 bg-gray-100 rounded-lg hidden">
+        <h3 class="font-bold mb-2">{% trans 'debug_info' %}:</h3>
+        <pre id="debugText" class="whitespace-pre-wrap"></pre>
+    </div>
+
+    <!-- Messages Section -->
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">{% trans 'quiz' %}</h1>
+        <div>
+            <button onclick="toggleDebug()" class="mr-4 bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+                {% trans 'toggle_debug' %}
+            </button>
+            <a href="{% url 'main_core:quiz_history' %}" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                {% trans 'quiz_history' %}
+            </a>
+        </div>
+    </div>
+    
+    <!-- Start New Quiz Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">{% trans 'start_new_quiz' %}</h2>
+        <form method="POST" action="{% url 'main_core:start_quiz' %}" class="space-y-6" id="quizForm" onsubmit="return handleSubmit(event)">
+            {% csrf_token %}
+            
+            <!-- HSK Level Selection -->
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">{% trans 'select_hsk_level' %}</label>
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+                    {% for level in hsk_levels %}
+                    <label class="relative">
+                        <input type="radio" name="hsk_level" value="{{ level }}" class="hidden peer" required>
+                        <div class="border-2 border-gray-300 rounded-lg p-4 text-center cursor-pointer transition-all peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-50">
+                            HSK {{ level }}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Quiz Type Selection -->
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">{% trans 'select_quiz_type' %}</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="relative">
+                        <input type="radio" name="quiz_type" value="vocab" class="hidden peer" required>
+                        <div class="border-2 border-gray-300 rounded-lg p-4 cursor-pointer transition-all peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-50">
+                            <h3 class="font-semibold mb-2">{% trans 'vocabulary_quiz' %}</h3>
+                            <p class="text-sm text-gray-600">{% trans 'test_vocabulary' %}</p>
+                            <p class="text-xs text-red-600 mt-2">2 {% trans 'points_per_question' %}</p>
+                        </div>
+                    </label>
+                    
+                    <label class="relative">
+                        <input type="radio" name="quiz_type" value="grammar" class="hidden peer" required>
+                        <div class="border-2 border-gray-300 rounded-lg p-4 cursor-pointer transition-all peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-50">
+                            <h3 class="font-semibold mb-2">{% trans 'grammar_quiz' %}</h3>
+                            <p class="text-sm text-gray-600">{% trans 'test_grammar' %}</p>
+                            <p class="text-xs text-red-600 mt-2">4 {% trans 'points_per_question' %}</p>
+                        </div>
+                    </label>
+                    
+                    <label class="relative">
+                        <input type="radio" name="quiz_type" value="sentence" class="hidden peer" required>
+                        <div class="border-2 border-gray-300 rounded-lg p-4 cursor-pointer transition-all peer-checked:border-red-500 peer-checked:bg-red-50 hover:bg-gray-50">
+                            <h3 class="font-semibold mb-2">{% trans 'sentence_rearrange' %}</h3>
+                            <p class="text-sm text-gray-600">{% trans 'test_sentence' %}</p>
+                            <p class="text-xs text-red-600 mt-2">4 {% trans 'points_per_question' %}</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" id="startQuizBtn" class="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                    {% trans 'start_quiz' %}
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Recent Quiz History -->
+    {% if user_quizzes %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">{% trans 'recent_quizzes' %}</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'date' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'type' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'hsk_level' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'score' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'time' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for quiz in user_quizzes %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ quiz.start_time|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% trans quiz.quiz_type %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            HSK {{ quiz.hsk_level }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ quiz.score }}/{{ quiz.total_questions }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ quiz.duration }} {% trans 'seconds' %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <a href="{% url 'main_core:quiz_results' quiz.id %}" class="text-red-600 hover:text-red-800">
+                                {% trans 'view_results' %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function logDebug(message) {
+        const debugText = document.getElementById('debugText');
+        const timestamp = new Date().toLocaleTimeString();
+        debugText.textContent += `[${timestamp}] ${message}\n`;
+    }
+
+    function toggleDebug() {
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.classList.toggle('hidden');
+    }
+
+    // Add animation when selecting quiz options
+    document.querySelectorAll('input[name="hsk_level"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const container = this.closest('.grid');
+            container.querySelectorAll('.peer-checked\\:border-red-500').forEach(el => {
+                el.classList.add('scale-100');
+                setTimeout(() => el.classList.remove('scale-100'), 200);
+            });
+            
+            // Log HSK level selection
+            logDebug(`HSK Level selected: ${this.value}`);
+            
+            // Enable the quiz type options
+            document.querySelectorAll('input[name="quiz_type"]').forEach(quizInput => {
+                quizInput.disabled = false;
+            });
+        });
+    });
+
+    // Add logging for quiz type selection
+    document.querySelectorAll('input[name="quiz_type"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const container = this.closest('.grid');
+            container.querySelectorAll('.peer-checked\\:border-red-500').forEach(el => {
+                el.classList.add('scale-100');
+                setTimeout(() => el.classList.remove('scale-100'), 200);
+            });
+            
+            // Log quiz type selection
+            logDebug(`Quiz Type selected: ${this.value}`);
+        });
+    });
+
+    // Form submission handling
+    function handleSubmit(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        const startButton = document.getElementById('startQuizBtn');
+        const hskLevel = document.querySelector('input[name="hsk_level"]:checked');
+        const quizType = document.querySelector('input[name="quiz_type"]:checked');
+        
+        logDebug('Form submission attempt started');
+        logDebug(`Selected HSK Level: ${hskLevel ? hskLevel.value : 'not selected'}`);
+        logDebug(`Selected Quiz Type: ${quizType ? quizType.value : 'not selected'}`);
+        
+        if (!hskLevel || !quizType) {
+            logDebug('Validation failed: missing required selections');
+            alert('Please select both an HSK level and a quiz type.');
+            return false;
+        }
+        
+        // Disable button and show loading state
+        startButton.disabled = true;
+        startButton.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Loading...';
+        logDebug('Form validation passed, preparing submission...');
+        
+        // Get the form and submit it
+        const form = document.getElementById('quizForm');
+        logDebug('Submitting form to: ' + form.action);
+        form.submit();
+        
+        return false; // Prevent default form submission since we're handling it manually
+    }
+
+    // Initialize debug panel
+    document.addEventListener('DOMContentLoaded', function() {
+        logDebug('Quiz page loaded');
+        logDebug('Waiting for user selections...');
+    });
+</script>
+{% endblock %}

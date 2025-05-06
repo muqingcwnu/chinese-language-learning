@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ word.chinese }} - HSK{{ word.hsk_level }} Vocabulary{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <!-- Word Header -->
+        <div class="px-4 py-5 sm:px-6 bg-red-50">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900 chinese-font">{{ word.chinese }}</h1>
+                    <p class="mt-2 text-xl text-gray-600">{{ word.pinyin }}</p>
+                    <p class="mt-1 text-lg text-gray-500">{{ word.english }}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="playAudio()" class="text-red-600 hover:text-red-700 p-2 rounded-full hover:bg-red-100">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                        </svg>
+                    </button>
+                    {% if user.is_authenticated %}
+                    <button onclick="toggleLearned()" class="text-red-600 hover:text-red-700 p-2 rounded-full hover:bg-red-100 {% if user_vocab.is_learned %}learned{% endif %}">
+                        <svg class="h-8 w-8" fill="{% if user_vocab.is_learned %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-4">
+                <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    HSK{{ word.hsk_level }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Word Content -->
+        <div class="border-t border-gray-200">
+            <dl>
+                <!-- Stroke Order -->
+                {% if word.stroke_order_gif %}
+                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">{% trans 'stroke_order' %}</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <img src="{{ word.stroke_order_gif.url }}" alt="Stroke order for {{ word.chinese }}" class="max-w-sm">
+                    </dd>
+                </div>
+                {% endif %}
+
+                <!-- Example Sentence -->
+                {% if word.example_sentence %}
+                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">{% trans 'example_sentence' %}</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <p class="text-lg chinese-font">{{ word.example_sentence }}</p>
+                        <p class="mt-1 text-gray-600">{{ word.example_pinyin }}</p>
+                        <p class="mt-1 text-gray-500">{{ word.example_translation }}</p>
+                    </dd>
+                </div>
+                {% endif %}
+
+                <!-- Learning Progress -->
+                {% if user.is_authenticated and user_vocab %}
+                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Learning Progress</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <div class="space-y-2">
+                            <p>Times reviewed: {{ user_vocab.review_count }}</p>
+                            {% if user_vocab.last_reviewed %}
+                            <p>Last reviewed: {{ user_vocab.last_reviewed|date:"F j, Y" }}</p>
+                            {% endif %}
+                            <p class="text-{% if user_vocab.is_learned %}green{% else %}red{% endif %}-600">
+                                Status: {% if user_vocab.is_learned %}Learned{% else %}Not learned{% endif %}
+                            </p>
+                        </div>
+                    </dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="mt-6 flex justify-between">
+        <a href="{% url 'mandarin_vocab:hsk_level' word.hsk_level %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to HSK{{ word.hsk_level }}
+        </a>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function playAudio() {
+    const audio = new Audio(`/vocab/api/get-audio/{{ word.id }}/`);
+    audio.play();
+}
+
+function toggleLearned() {
+    fetch(`/vocab/api/toggle-learned/{{ word.id }}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const button = document.querySelector('button[onclick="toggleLearned()"]');
+                const svg = button.querySelector('svg');
+                if (data.is_learned) {
+                    svg.setAttribute('fill', 'currentColor');
+                    button.classList.add('learned');
+                } else {
+                    svg.setAttribute('fill', 'none');
+                    button.classList.remove('learned');
+                }
+                location.reload(); // Refresh to update learning progress section
+            }
+        });
+}
+</script>
+{% endblock %}
+{% endblock %} 

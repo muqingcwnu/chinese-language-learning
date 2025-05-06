@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load translation_tags %}
+
+{% block title %}{% trans 'chinese_lessons' %} - China's Legacy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+        <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">{% trans 'chinese_lessons' %}</h1>
+        <p class="mt-4 text-lg text-gray-500">{% trans 'lessons_description' %}</p>
+    </div>
+
+    <div class="mt-12">
+        <div class="flex flex-nowrap space-x-6 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-red-500 scrollbar-track-gray-100">
+            {% for level in hsk_levels %}
+                <div class="flex-none w-80">
+                    {% if books_by_level|get_item:level %}
+                        {% for book_info in books_by_level|get_item:level %}
+                            <div class="bg-white overflow-hidden shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300 h-full">
+                                <div class="p-6">
+                                    <div class="flex items-center justify-center mb-4">
+                                        {% if book_info.book.cover_url %}
+                                            <img src="{{ book_info.book.cover_url }}" alt="{{ book_info.book.title }}" class="h-48 object-cover rounded">
+                                        {% else %}
+                                            <div class="h-48 w-36 bg-red-100 flex items-center justify-center rounded">
+                                                <span class="text-2xl font-bold text-red-600">{% trans 'hsk_level' %} {{ book_info.book.hsk_level }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <h3 class="text-lg font-medium text-gray-900 text-center">{{ book_info.book.title }}</h3>
+                                    <p class="mt-2 text-sm text-gray-500 text-center">{{ book_info.book.get_book_type_display }}</p>
+                                    <div class="mt-4">
+                                        <div class="flex items-center justify-between text-sm text-gray-500">
+                                            <span>{{ book_info.chapters.count }} {% trans 'chapters_count' %}</span>
+                                            <span>{{ book_info.book.page_count }} {% trans 'pages_count' %}</span>
+                                        </div>
+                                        <div class="mt-4 space-y-2">
+                                            <a href="{% url 'main_core:book_detail' book_info.book.id %}" 
+                                               class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                                                {% trans 'view_book' %}
+                                            </a>
+                                            <a href="{% url 'main_core:view_pdf' book_info.book.hsk_level %}" 
+                                               class="w-full flex items-center justify-center px-4 py-2 border border-red-600 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50">
+                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                {% trans 'read_pdf' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-12 bg-gray-50 rounded-lg">
+                            <p class="text-gray-500">No books available for HSK {{ level }} yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom scrollbar styles */
+    .scrollbar-thin::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #ef4444;
+        border-radius: 4px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: #dc2626;
+    }
+</style>
+{% endblock %} 

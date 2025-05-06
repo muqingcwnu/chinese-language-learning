@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ chapter.title }} - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="{% url 'main_core:book_detail' book.id %}" class="text-red-600 hover:text-red-700 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to {{ book.title }}
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+            Chapter {{ chapter.chapter_number }}: {{ chapter.title }}
+        </h1>
+        <p class="text-xl text-gray-600 mb-6">{{ chapter.description }}</p>
+        
+        {% if chapter.pdf_file %}
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Lesson Material</h2>
+            <div class="bg-gray-50 rounded-lg p-6">
+                <a href="{{ chapter.file_url }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                   target="_blank">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Download Lesson PDF
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if chapter.vocabulary_words.exists %}
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Vocabulary Words</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for word in chapter.vocabulary_words.all %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="text-xl font-medium text-gray-900 mb-1">{{ word.chinese }}</div>
+                    <div class="text-sm text-gray-500 mb-2">{{ word.pinyin }}</div>
+                    <div class="text-gray-700">{{ word.english }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="flex justify-between items-center mt-8">
+        {% if prev_chapter %}
+        <a href="{% url 'main_core:lesson_detail' book.id prev_chapter.chapter_number %}" 
+           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Previous Chapter
+        </a>
+        {% else %}
+        <div></div>
+        {% endif %}
+
+        {% if next_chapter %}
+        <a href="{% url 'main_core:lesson_detail' book.id next_chapter.chapter_number %}"
+           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+            Next Chapter
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
