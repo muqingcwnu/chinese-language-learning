@@ -13,16 +13,16 @@ class CustomUser(AbstractUser):
     ]
 
     # Personal Information
-    full_name = models.CharField(max_length=255, blank=True)
-    age = models.IntegerField(validators=[MinValueValidator(5), MaxValueValidator(120)], null=True, blank=True)
-    institute = models.CharField(max_length=255, blank=True)
-    nationality = models.CharField(max_length=100, blank=True)
+    full_name = models.CharField(max_length=255)
+    age = models.IntegerField(validators=[MinValueValidator(5), MaxValueValidator(120)])
+    institute = models.CharField(max_length=255)
+    nationality = models.CharField(max_length=100)
     
     # Academic Information
-    batch = models.CharField(max_length=50, blank=True, help_text='e.g., 2020-2024')
-    student_id = models.CharField(max_length=50, blank=True, unique=True, null=True)
-    university_field = models.CharField(max_length=100, blank=True, help_text='e.g., Computer Science, Business, etc.')
-    phone = models.CharField(max_length=20, blank=True)
+    batch = models.CharField(max_length=50, help_text='e.g., 2020-2024')
+    student_id = models.CharField(max_length=50, unique=True)
+    university_field = models.CharField(max_length=100, help_text='e.g., Computer Science, Business, etc.')
+    phone = models.CharField(max_length=20)
     
     # Profile and Progress
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)

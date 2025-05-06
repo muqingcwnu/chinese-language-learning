@@ -25,7 +25,7 @@
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 fade-in-up">
+    <div class="max-w-2xl w-full space-y-8 fade-in-up">
         <div>
             <img class="mx-auto h-24 w-auto transform hover:scale-105 transition-transform duration-300" src="{% static 'images/logo.jpg' %}" alt="China's Legacy">
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -64,68 +64,48 @@
         </div>
         {% endif %}
 
-        <form class="mt-8 space-y-6" method="POST" action="{% url 'user_auth:signup' %}">
+        <form class="mt-8 space-y-6" method="POST" action="{% url 'user_auth:signup' %}" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="rounded-md shadow-sm space-y-4">
-                <div class="group">
-                    <label for="id_username" class="block text-sm font-medium text-gray-700">{% trans "Username" %}</label>
-                    <input id="id_username" name="username" type="text" required 
-                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md 
-                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
-                                  transition-colors duration-200 hover:border-gray-400"
-                           placeholder="{% trans 'Choose a username' %}">
-                </div>
-                
-                <div class="group">
-                    <label for="id_email" class="block text-sm font-medium text-gray-700">{% trans "Email" %}</label>
-                    <input id="id_email" name="email" type="email" required 
-                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md 
-                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
-                                  transition-colors duration-200 hover:border-gray-400"
-                           placeholder="{% trans 'Enter your email' %}">
+            <div class="bg-white p-6 rounded-lg shadow-sm space-y-6">
+                <!-- Account Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>{{ form.username|as_crispy_field }}</div>
+                        <div>{{ form.email|as_crispy_field }}</div>
+                        <div>{{ form.password1|as_crispy_field }}</div>
+                        <div>{{ form.password2|as_crispy_field }}</div>
+                    </div>
                 </div>
 
-                <div class="group">
-                    <label for="id_full_name" class="block text-sm font-medium text-gray-700">{% trans "Full Name" %}</label>
-                    <input id="id_full_name" name="full_name" type="text" required 
-                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md 
-                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
-                                  transition-colors duration-200 hover:border-gray-400"
-                           placeholder="{% trans 'Enter your full name' %}">
+                <!-- Personal Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>{{ form.full_name|as_crispy_field }}</div>
+                        <div>{{ form.age|as_crispy_field }}</div>
+                        <div>{{ form.nationality|as_crispy_field }}</div>
+                        <div>{{ form.phone|as_crispy_field }}</div>
+                    </div>
                 </div>
 
-                <div class="group">
-                    <label for="id_password1" class="block text-sm font-medium text-gray-700">{% trans "Password" %}</label>
-                    <input id="id_password1" name="password1" type="password" required 
-                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md 
-                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
-                                  transition-colors duration-200 hover:border-gray-400"
-                           placeholder="{% trans 'Create a password' %}">
+                <!-- Academic Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Academic Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>{{ form.institute|as_crispy_field }}</div>
+                        <div>{{ form.university_field|as_crispy_field }}</div>
+                        <div>{{ form.batch|as_crispy_field }}</div>
+                        <div>{{ form.student_id|as_crispy_field }}</div>
+                    </div>
                 </div>
 
-                <div class="group">
-                    <label for="id_password2" class="block text-sm font-medium text-gray-700">{% trans "Confirm Password" %}</label>
-                    <input id="id_password2" name="password2" type="password" required 
-                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md 
-                                  focus:outline-none focus:ring-chinese-red focus:border-chinese-red focus:z-10 sm:text-sm
-                                  transition-colors duration-200 hover:border-gray-400"
-                           placeholder="{% trans 'Confirm your password' %}">
-                </div>
-
-                <div class="group">
-                    <label for="id_current_hsk_level" class="block text-sm font-medium text-gray-700">{% trans "Current HSK Level" %}</label>
-                    <select id="id_current_hsk_level" name="current_hsk_level" 
-                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm 
-                                   focus:outline-none focus:ring-chinese-red focus:border-chinese-red sm:text-sm
-                                   transition-colors duration-200 hover:border-gray-400">
-                        <option value="0">{% trans "Beginner (No HSK)" %}</option>
-                        <option value="1">HSK 1</option>
-                        <option value="2">HSK 2</option>
-                        <option value="3">HSK 3</option>
-                        <option value="4">HSK 4</option>
-                        <option value="5">HSK 5</option>
-                        <option value="6">HSK 6</option>
-                    </select>
+                <!-- Profile Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Profile Information</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>{{ form.profile_picture|as_crispy_field }}</div>
+                    </div>
                 </div>
             </div>
 
