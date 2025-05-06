@@ -18,3 +18,4 @@ cryptography>=41.0.0
 idna>=3.4
 dnspython>=2.6.0
 openai>=1.0.0
+django-jazzmin>=2.6.0
