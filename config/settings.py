@@ -28,13 +28,43 @@ SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
+# Host Configuration
 ALLOWED_HOSTS = [
     'chinese-language-learning.onrender.com',
     'localhost',  # For local development
     '127.0.0.1',  # For local development
 ]
+
+# CSRF Configuration
 CSRF_TRUSTED_ORIGINS = [
     'https://chinese-language-learning.onrender.com',
+    'http://localhost:8000',  # For local development
+]
+
+# Render Configuration
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    'https://chinese-language-learning.onrender.com',
+    'http://localhost:8000',  # For local development
+]
+
+# Security Middleware
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    'main_core.middleware.LanguageMiddleware',
 ]
 
 # Application definition
@@ -61,19 +91,6 @@ INSTALLED_APPS = [
     'main_core.apps.MainCoreConfig',
     'mandarin_vocab.apps.MandarinVocabConfig',
     'timeline.apps.TimelineConfig',
-]
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'main_core.middleware.LanguageMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -222,7 +239,7 @@ PROFILE_SETTINGS = {
     'STREAK_BONUS_MULTIPLIER': 1.5,
 }
 
-# Django Rest Framework
+# Django Rest Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -250,11 +267,13 @@ CACHES = {
 # DeepSeek API Configuration
 DEEPSEEK_API_KEY = 'sk-93e72b6c6cc0453ca63ed6cf777a4c99'
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-
-CORS_ALLOWED_ORIGINS = [
-    'https://chinese-language-learning.onrender.com',
-]
+# Additional Security Settings
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
