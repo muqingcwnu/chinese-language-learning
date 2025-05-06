@@ -18,6 +18,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -27,8 +28,14 @@ SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = [
+    'chinese-language-learning.onrender.com',
+    'localhost',  # For local development
+    '127.0.0.1',  # For local development
+]
+CSRF_TRUSTED_ORIGINS = [
+    'https://chinese-language-learning.onrender.com',
+]
 
 # Application definition
 
@@ -242,3 +249,12 @@ CACHES = {
 
 # DeepSeek API Configuration
 DEEPSEEK_API_KEY = 'sk-93e72b6c6cc0453ca63ed6cf777a4c99'
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+
+CORS_ALLOWED_ORIGINS = [
+    'https://chinese-language-learning.onrender.com',
+]
